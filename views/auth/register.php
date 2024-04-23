@@ -13,15 +13,15 @@
 
    <title>Bulona - Bootstrap Admin Dashboard Template</title>
    <!--favicon-->
-   <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+   <link rel="icon" href="../../assets/images/favicon.ico" type="image/x-icon">
    <!-- Bootstrap core CSS-->
-   <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+   <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" />
    <!-- animate CSS-->
-   <link href="assets/css/animate.css" rel="stylesheet" type="text/css" />
+   <link href="../../assets/css/animate.css" rel="stylesheet" type="text/css" />
    <!-- Icons CSS-->
-   <link href="assets/css/icons.css" rel="stylesheet" type="text/css" />
+   <link href="../../assets/css/icons.css" rel="stylesheet" type="text/css" />
    <!-- Custom Style-->
-   <link href="assets/css/app-style.css" rel="stylesheet" />
+   <link href="../../assets/css/app-style.css" rel="stylesheet" />
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/alertify.min.css" />
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/themes/default.min.css" />
    <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js"></script>
@@ -47,7 +47,7 @@
          <div class="card-body">
             <div class="card-content p-2">
                <div class="text-center">
-                  <img src="assets/images/logo-icon.png" alt="logo icon">
+                  <img src="../../assets/images/logo-icon.png" alt="logo icon">
                </div>
                <div class="card-title text-uppercase text-center py-3">Sign Up</div>
                <form class="register_form" id="register_form">
@@ -160,15 +160,15 @@
    <!--End Modal -->
 
    <!-- Bootstrap core JavaScript-->
-   <script src="assets/js/jquery.min.js"></script>
-   <script src="assets/js/popper.min.js"></script>
-   <script src="assets/js/bootstrap.min.js"></script>
+   <script src="../../assets/js/jquery.min.js"></script>
+   <script src="../../assets/js/popper.min.js"></script>
+   <script src="../../assets/js/bootstrap.min.js"></script>
 
    <!-- sidebar-menu js -->
-   <script src="assets/js/sidebar-menu.js"></script>
+   <script src="../../assets/js/sidebar-menu.js"></script>
 
    <!-- Custom scripts -->
-   <script src="assets/js/app-script.js"></script>
+   <script src="../../assets/js/app-script.js"></script>
 
    <!-- Add this script at the end of your HTML file, before </body> -->
    <script>

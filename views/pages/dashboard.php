@@ -392,7 +392,7 @@
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <div class="media align-items-center">
-                <img src="assets/images/avatars/avatar-13.png" alt="user avatar" class="customer-img rounded-circle">
+                <img src="../../assets/images/avatars/avatar-13.png" alt="user avatar" class="customer-img rounded-circle">
                 <div class="media-body ml-3">
                   <h6 class="mb-0">iPhone X <small class="ml-4">08.34 AM</small></h6>
                   <p class="mb-0 small-font">Sara Jhon : This i svery Nice phone in low budget.</p>
@@ -408,7 +408,7 @@
             </li>
             <li class="list-group-item">
               <div class="media align-items-center">
-                <img src="assets/images/avatars/avatar-15.png" alt="user avatar" class="customer-img rounded-circle">
+                <img src="../../assets/images/avatars/avatar-15.png" alt="user avatar" class="customer-img rounded-circle">
                 <div class="media-body ml-3">
                   <h6 class="mb-0">Air Pod <small class="ml-4">05.26 PM</small></h6>
                   <p class="mb-0 small-font">Danish Josh : The brand apple is original !</p>
@@ -424,7 +424,7 @@
             </li>
             <li class="list-group-item">
               <div class="media align-items-center">
-                <img src="assets/images/avatars/avatar-14.png" alt="user avatar" class="customer-img rounded-circle">
+                <img src="../../assets/images/avatars/avatar-14.png" alt="user avatar" class="customer-img rounded-circle">
                 <div class="media-body ml-3">
                   <h6 class="mb-0">Mackbook Pro <small class="ml-4">06.45 AM</small></h6>
                   <p class="mb-0 small-font">Jhon Doe : Excllent product and awsome quality</p>
@@ -440,7 +440,7 @@
             </li>
             <li class="list-group-item">
               <div class="media align-items-center">
-                <img src="assets/images/avatars/avatar-16.png" alt="user avatar" class="customer-img rounded-circle">
+                <img src="../../assets/images/avatars/avatar-16.png" alt="user avatar" class="customer-img rounded-circle">
                 <div class="media-body ml-3">
                   <h6 class="mb-0">Air Pod <small class="ml-4">08.34 AM</small></h6>
                   <p class="mb-0 small-font">Christine : The brand apple is original !</p>
@@ -456,7 +456,7 @@
             </li>
             <li class="list-group-item">
               <div class="media align-items-center">
-                <img src="assets/images/avatars/avatar-17.png" alt="user avatar" class="customer-img rounded-circle">
+                <img src="../../assets/images/avatars/avatar-17.png" alt="user avatar" class="customer-img rounded-circle">
                 <div class="media-body ml-3">
                   <h6 class="mb-0">Mackbook <small class="ml-4">08.34 AM</small></h6>
                   <p class="mb-0 small-font">Michle : The brand apple is original !</p>
@@ -509,7 +509,7 @@
               <tbody>
                 <tr>
                   <td>
-                    <img alt="Image placeholder" src="assets/images/products/01.png" class="product-img">
+                    <img alt="Image placeholder" src="../../assets/images/products/01.png" class="product-img">
                   </td>
                   <td>Headphone GL</td>
                   <td>$1,840 USD</td>
@@ -527,7 +527,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <img alt="Image placeholder" src="assets/images/products/02.png" class="product-img">
+                    <img alt="Image placeholder" src="../../assets/images/products/02.png" class="product-img">
                   </td>
                   <td>Clasic Shoes</td>
                   <td>$1,520 USD</td>
@@ -545,7 +545,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <img alt="Image placeholder" src="assets/images/products/03.png" class="product-img">
+                    <img alt="Image placeholder" src="../../assets/images/products/03.png" class="product-img">
                   </td>
                   <td>Hand Watch</td>
                   <td>$1,620 USD</td>
@@ -563,7 +563,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <img alt="Image placeholder" src="assets/images/products/04.png" class="product-img">
+                    <img alt="Image placeholder" src="../../assets/images/products/04.png" class="product-img">
                   </td>
                   <td>Hand Camera</td>
                   <td>$2,220 USD</td>
@@ -581,7 +581,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <img alt="Image placeholder" src="assets/images/products/05.png" class="product-img">
+                    <img alt="Image placeholder" src="../../assets/images/products/05.png" class="product-img">
                   </td>
                   <td>Iphone-X Pro</td>
                   <td>$9,890 USD</td>
@@ -599,7 +599,7 @@
                 </tr>
                 <tr>
                   <td>
-                    <img alt="Image placeholder" src="assets/images/products/06.png" class="product-img">
+                    <img alt="Image placeholder" src="../../assets/images/products/06.png" class="product-img">
                   </td>
                   <td>Ladies Purse</td>
                   <td>$3,420 USD</td>
@@ -633,29 +633,29 @@
 <!--End content-wrapper-->
 
 <!-- Bootstrap core JavaScript -->
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/js/popper.min.js"></script>
-<script src="assets/js/bootstrap.min.js"></script>
+<script src="../../assets/js/jquery.min.js"></script>
+<script src="../../assets/js/popper.min.js"></script>
+<script src="../../assets/js/bootstrap.min.js"></script>
 
 <!-- simplebar js -->
-<script src="assets/plugins/simplebar/js/simplebar.js"></script>
+<script src="../../assets/plugins/simplebar/js/simplebar.js"></script>
 <!-- sidebar-menu js -->
-<script src="assets/js/sidebar-menu.js"></script>
+<script src="../../assets/js/sidebar-menu.js"></script>
 <!-- loader scripts -->
-<script src="assets/js/jquery.loading-indicator.html"></script>
+<script src="../../assets/js/jquery.loading-indicator.html"></script>
 <!-- Custom scripts -->
-<script src="assets/js/app-script.js"></script>
+<script src="../../assets/js/app-script.js"></script>
 <!-- Chart js -->
 
-<script src="assets/plugins/Chart.js/Chart.min.js"></script>
+<script src="../../assets/plugins/Chart.js/Chart.min.js"></script>
 <!-- Vector map JavaScript -->
-<script src="assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js"></script>
-<script src="assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js"></script>
+<script src="../../assets/plugins/vectormap/jquery-jvectormap-2.0.2.min.js"></script>
+<script src="../../assets/plugins/vectormap/jquery-jvectormap-world-mill-en.js"></script>
 <!-- Easy Pie Chart JS -->
-<script src="assets/plugins/jquery.easy-pie-chart/jquery.easypiechart.min.js"></script>
+<script src="../../assets/plugins/jquery.easy-pie-chart/jquery.easypiechart.min.js"></script>
 <!-- Sparkline JS -->
-<script src="assets/plugins/sparkline-charts/jquery.sparkline.min.js"></script>
-<script src="assets/plugins/jquery-knob/excanvas.js"></script>
-<script src="assets/plugins/jquery-knob/jquery.knob.js"></script>
+<script src="../../assets/plugins/sparkline-charts/jquery.sparkline.min.js"></script>
+<script src="../../assets/plugins/jquery-knob/excanvas.js"></script>
+<script src="../../assets/plugins/jquery-knob/jquery.knob.js"></script>
 
 @endsection

@@ -11,21 +11,21 @@
 
     <title>@yield('title','Bulona - Bootstrap Admin Dashboard Template')</title>
     <!--favicon-->
-    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="icon" href="../../assets/images/favicon.ico" type="image/x-icon">
     <!-- simplebar CSS-->
-    <link href="assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
+    <link href="../../assets/plugins/simplebar/css/simplebar.css" rel="stylesheet" />
     <!-- Bootstrap core CSS-->
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../../assets/css/bootstrap.min.css" rel="stylesheet" />
     <!-- animate CSS-->
-    <link href="assets/css/animate.css" rel="stylesheet" type="text/css" />
+    <link href="../../assets/css/animate.css" rel="stylesheet" type="text/css" />
     <!-- Icons CSS-->
-    <link href="assets/css/icons.css" rel="stylesheet" type="text/css" />
+    <link href="../../assets/css/icons.css" rel="stylesheet" type="text/css" />
     <!-- Sidebar CSS-->
-    <link href="assets/css/sidebar-menu.css" rel="stylesheet" />
+    <link href="../../assets/css/sidebar-menu.css" rel="stylesheet" />
     <!-- Custom Style-->
-    <link href="assets/css/app-style.css" rel="stylesheet" />
+    <link href="../../assets/css/app-style.css" rel="stylesheet" />
     <!-- skins CSS-->
-    <link href="assets/css/skins.css" rel="stylesheet" />
+    <link href="../../assets/css/skins.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="alertify/themes/alertify.core.css" />
     <link rel="stylesheet" href="alertify/themes/alertify.default.css" />
@@ -49,7 +49,7 @@
         <!--Start sidebar-wrapper-->
         <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
             <a href="dashboard" style="margin-left: 10px;">
-                <img src="assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
+                <img src="../../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
                 <h5 class="logo-text">Bulona Admin</h5>
             </a>
 
