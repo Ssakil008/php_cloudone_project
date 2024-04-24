@@ -1,5 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+// Start the session
+session_start();
+// Check if user is logged in
+if (isset($_SESSION['id'])) {
+    // User is logged in, so retrieve username from session
+    $username = $_SESSION['username'];
+} else {
+    // User is not logged in, redirect to login page
+    header("Location: ../auth/login.php");
+    exit(); // Terminate script execution after redirection
+}
+?>
 
 <head>
     <meta charset="utf-8" />
@@ -7,9 +18,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title','Bulona - Bootstrap Admin Dashboard Template')</title>
+    <title><?php echo isset($title) ? $title : 'Bulona - Bootstrap Admin Dashboard Template'; ?></title>
     <!--favicon-->
     <link rel="icon" href="../../assets/images/favicon.ico" type="image/x-icon">
     <!-- simplebar CSS-->
@@ -27,12 +37,13 @@
     <!-- skins CSS-->
     <link href="../../assets/css/skins.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="alertify/themes/alertify.core.css" />
-    <link rel="stylesheet" href="alertify/themes/alertify.default.css" />
+    <link rel="stylesheet" href="../../alertify/themes/alertify.core.css" />
+    <link rel="stylesheet" href="../../alertify/themes/alertify.default.css" />
 
 </head>
 
 <body>
+
 
     <!-- start loader -->
     <div id="pageloader-overlay" class="visible incoming">
@@ -48,7 +59,7 @@
     <div id="wrapper">
         <!--Start sidebar-wrapper-->
         <div id="sidebar-wrapper" data-simplebar="" data-simplebar-auto-hide="true">
-            <a href="dashboard" style="margin-left: 10px;">
+            <a href="../pages/dashboard.php" style="margin-left: 10px;">
                 <img src="../../assets/images/logo-icon.png" class="logo-icon" alt="logo icon">
                 <h5 class="logo-text">Bulona Admin</h5>
             </a>
@@ -58,7 +69,7 @@
             <ul class="sidebar-menu" id="sidebarMenu">
                 <li>
                     <!-- <a href="javaScript:void();" class="waves-effect"> -->
-                    <a href="dashboard">
+                    <a href="../pages/dashboard.php">
                         <i class="zmdi zmdi-view-dashboard"></i> <span>Dashboard</span><i class="fa fa-angle-left pull-right"></i>
                     </a>
                     <!-- <ul class="sidebar-submenu">
@@ -101,13 +112,13 @@
                 <ul class="navbar-nav ml-auto">
                     <li class="nav-item">
                         <a class="nav-link dropdown-toggle dropdown-toggle-nocaret" data-toggle="dropdown" href="#">
-                            <span class="user-profile"><i class="icon-user mr-2"></i>@auth {{auth()->user()->username}} @endauth</span>
+                            <span class="user-profile"><i class="icon-user mr-2"></i><?php echo $username ?></span>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-right">
                             <li class="dropdown-item user-details">
                                 <a href="javaScript:void();">
                                     <div class="media">
-                                        <div class="avatar"><i class="icon-user mr-2"></i>@auth {{auth()->user()->username}} @endauth</div>
+                                        <div class="avatar"><i class="icon-user mr-2"></i><?php echo $username ?></div>
                                         <!-- <div class="media-body">
                                         <h6 class="mt-2 user-title">Sarajhon Mccoy</h6>
                                         <p class="user-subtitle">mccoy@example.com</p>
@@ -122,7 +133,7 @@
                             <li class="dropdown-divider"></li>
                             <li class="dropdown-item"><a href="#"><i class="icon-settings mr-2"></i> Setting</a></li>
                             <li class="dropdown-divider"></li>
-                            <li class="dropdown-item" id="logout"><a href="logout"><i class="icon-power mr-2"></i> Logout</a></li>
+                            <li class="dropdown-item" id="logout"><a href="#"><i class="icon-power mr-2"></i> Logout</a></li>
                         </ul>
                     </li>
                 </ul>

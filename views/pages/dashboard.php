@@ -1,6 +1,7 @@
-@extends('layouts.app')
-@section('title','Dashboard')
-@section('content')
+<?php
+$title = 'Dashboard';
+include '../partials/header.php'; 
+?>
 
 <div class="content-wrapper">
   <div class="container-fluid">
@@ -658,4 +659,6 @@
 <script src="../../assets/plugins/jquery-knob/excanvas.js"></script>
 <script src="../../assets/plugins/jquery-knob/jquery.knob.js"></script>
 
-@endsection
+<?php
+include '../partials/footer.php'; 
+?>

@@ -1,6 +1,7 @@
-@extends('layouts.app')
-@section('title','Credential For Server')
-@section('content')
+<?php
+$title = 'Credential For Server';
+include '../partials/header.php';
+?>
 
 <div class="clearfix"></div>
 
@@ -11,11 +12,9 @@
             <div class="col-sm-9">
                 <h4 class="page-title">Credential Details</h4>
             </div>
-            @if ($createPermission == 'yes')
             <div class="col-lg-3 col-md-3 col-sm-3 text-right">
                 <button type="button" id="addNewBtn" class="btn btn-primary btn-sm">Add New User</button>
             </div>
-            @endif
         </div>
 
         <div class="table-responsive">
@@ -30,12 +29,8 @@
                         <th>IP Address</th>
                         <th>Username</th>
                         <th>Password</th>
-                        @if ($editPermission == 'yes')
-                        <th>Edit</th>
-                        @endif
-                        @if ($deletePermission == 'yes')
-                        <th>Delete</th>
-                        @endif
+                        <!-- <th>Edit</th>
+                        <th>Delete</th> -->
                     </tr>
                 </thead>
                 <tbody>
@@ -63,7 +58,6 @@
                 <!-- Your form goes here -->
 
                 <form id="myForm">
-                    @csrf
                     <input type="hidden" name="entryId" id="entryId">
                     <div class="form-group">
                         <div class="row">
@@ -134,7 +128,7 @@
 <script src="../../assets/js/sidebar-menu.js"></script>
 <!-- Custom scripts -->
 <script src="../../assets/js/app-script.js"></script>
-<script src="alertify/lib/alertify.min.js"></script>
+<script src="../../alertify/lib/alertify.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
 <!-- ColVis JavaScript file -->
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
@@ -325,10 +319,11 @@
         var deletePermission = '{{ $deletePermission }}';
         // Define DataTable columns dynamically based on permissions
         var columns = [{
-                "data": null,
-                "render": function(data, type, row, meta) {
-                    return meta.row + 1;
-                }
+                "data": "id",
+                // "data": null,
+                // "render": function(data, type, row, meta) {
+                //     return meta.row + 1;
+                // }
             },
             {
                 "data": "credential_for"
@@ -354,39 +349,41 @@
         ];
 
         // Check if user has edit permission, then add edit column
-        if (editPermission === 'yes') {
-            columns.push({
-                "data": "edit",
-                "render": function(data, type, row) {
-                    if (!data) {
-                        return '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-entry-id="' + row.id + '"></i>';
-                    } else {
-                        return data;
-                    }
-                }
-            });
-        }
+        // if (editPermission === 'yes') {
+        //     columns.push({
+        //         "data": "edit",
+        //         "render": function(data, type, row) {
+        //             if (!data) {
+        //                 return '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-entry-id="' + row.id + '"></i>';
+        //             } else {
+        //                 return data;
+        //             }
+        //         }
+        //     });
+        // }
 
         // Check if user has delete permission, then add delete column
-        if (deletePermission === 'yes') {
-            columns.push({
-                "data": "delete",
-                "render": function(data, type, row) {
-                    if (!data) {
-                        return '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-entry-id="' + row.id + '"></i>';
-                    } else {
-                        return data;
-                    }
-                }
-            });
-        }
+        // if (deletePermission === 'yes') {
+        //     columns.push({
+        //         "data": "delete",
+        //         "render": function(data, type, row) {
+        //             if (!data) {
+        //                 return '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-entry-id="' + row.id + '"></i>';
+        //             } else {
+        //                 return data;
+        //             }
+        //         }
+        //     });
+        // }
 
         // Initialize DataTable with the dynamic columns
-        $('#entries-table').DataTable({
+        $('#entries-table').dataTable({
+            "scrollX": true,
+            "pagingType": "numbers",
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "{{ route('get-entries')}}",
+                "url": "../../database/get_entries.php",
                 "type": "POST",
                 "data": {
                     menuId: menuId
@@ -501,4 +498,6 @@
     });
 </script>
 
-@endsection
+<?php
+include '../partials/footer.php';
+?>

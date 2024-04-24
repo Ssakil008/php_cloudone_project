@@ -22,9 +22,8 @@
    <link href="../../assets/css/icons.css" rel="stylesheet" type="text/css" />
    <!-- Custom Style-->
    <link href="../../assets/css/app-style.css" rel="stylesheet" />
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/alertify.min.css" />
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/css/themes/default.min.css" />
-   <script src="https://cdnjs.cloudflare.com/ajax/libs/AlertifyJS/1.13.1/alertify.min.js"></script>
+   <link rel="stylesheet" href="../../alertify/themes/alertify.core.css" />
+   <link rel="stylesheet" href="../../alertify/themes/alertify.default.css" />
 
 </head>
 
@@ -51,7 +50,6 @@
                </div>
                <div class="card-title text-uppercase text-center py-3">Sign Up</div>
                <form class="register_form" id="register_form">
-                  @csrf
                   <div class="form-group">
                      <label for="username" class="sr-only">User Name</label>
                      <div class="position-relative has-icon-right">
@@ -113,7 +111,7 @@
             </div>
          </div>
          <div class="card-footer text-center py-3">
-            <p class="text-dark mb-0">Already have an account? <a href="login"> Sign In here</a></p>
+            <p class="text-dark mb-0">Already have an account? <a href="login.php"> Sign In here</a></p>
          </div>
       </div>
       <!--Start Back To Top Button-->
@@ -170,6 +168,9 @@
    <!-- Custom scripts -->
    <script src="../../assets/js/app-script.js"></script>
 
+   <script src="../../alertify/lib/alertify.min.js"></script>
+
+
    <!-- Add this script at the end of your HTML file, before </body> -->
    <script>
       $(document).ready(function() {
@@ -216,26 +217,30 @@
          function fetchRoleIdAndSubmitForm() {
             $.ajax({
                type: 'GET',
-               url: '{{ route("fetchRoleId") }}', // Assuming you have a route to fetch the roleId
+               url: '../../database/fetchRoleId.php', // Assuming you have a route to fetch the roleId
                success: function(response) {
                   console.log(response);
-                  if (response.success) {
-                     var roleId = response.roleId;
+                  var roleIdResponse = JSON.parse(response); // Parse the JSON response
+                  if (roleIdResponse.success) {
+                     var roleId = roleIdResponse.roleId;
                      var formData = $('#register_form').serialize();
                      formData += '&roleId=' + roleId; // Append fetched roleId to the form data
                      console.log(formData);
 
                      $.ajax({
                         type: 'POST',
-                        url: '{{ route("upsertUser") }}',
+                        url: '../../database/upsertUser.php',
                         data: formData,
                         success: function(response) {
+                           console.log(response);
+
+                           var response = JSON.parse(response);
                            if (response.success) {
                               $('#successmessage').text('Registration Successful');
                               $('#successmodal').modal('show');
                               setTimeout(function() {
                                  $('#successmodal').modal('hide');
-                              }, 1000);
+                              }, 3000);
                               autoLoginAndRedirect($('#email').val(), $('#password').val());
                            } else {
                               // Handle server-side errors
@@ -249,7 +254,7 @@
                         }
                      });
                   } else {
-                     console.error('Error fetching roleId:', response.message);
+                     console.error('Error fetching(outer) roleId:', response.message);
                      $('#errormessage').text('Registration Failed');
                      $('#errormodal').modal('show');
                      setTimeout(function() {
@@ -257,13 +262,10 @@
                      }, 2000);
                   }
                },
-               error: function(error) {
+               error: function(xhr, status, error) {
                   console.error('Error fetching roleId:', error);
-                  $('#errormessage').text('Registration Failed');
-                  $('#errormodal').modal('show');
-                  setTimeout(function() {
-                     $('#errormodal').modal('hide');
-                  }, 2000);
+                  var errorMessage = (response && response.message) ? response.message : "An error occurred while fetching the role ID";
+                  showErrorModal([errorMessage]);
                }
             });
          }
@@ -295,11 +297,12 @@
 
          $.ajax({
             type: 'POST',
-            url: '{{ route("login-user") }}',
+            url: '../../database/login_user.php',
             data: loginData,
             success: function(response) {
+               var response = JSON.parse(response); // Parse the JSON response
                if (response.success) {
-                  window.location.href = '{{ route("dashboard") }}';
+                  window.location.href = '../pages/dashboard.php';
                } else {
                   $('#errormessage').text('Auto login failed');
                   $('#errormodal').modal('show');

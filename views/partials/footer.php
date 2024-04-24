@@ -70,14 +70,14 @@
         // Make an AJAX call to fetch the sidebar menu
         $.ajax({
             type: 'GET',
-            url: '{{ route("generateSidebarMenu") }}',
+            url: '../../database/generateSidebarMenu.php',
             success: function(response) {
                 console.log(response);
-                // Populate the sidebar menu with the received data
+                var response = JSON.parse(response);
                 if (response.sidebarMenu) {
                     response.sidebarMenu.forEach(function(menu) {
                         $('#sidebarMenu').append(
-                            '<li><a href="' + menu.link + '"><i class="zmdi zmdi-dot-circle-alt"></i> ' + menu.name + '</a></li>'
+                            '<li><a href="../pages/' + menu.link + '.php"><i class="zmdi zmdi-dot-circle-alt"></i> ' + menu.name + '</a></li>'
                         );
                     });
                 } else {
@@ -96,18 +96,16 @@
             // Make an AJAX request to the logout endpoint
             $.ajax({
                 type: 'POST',
-                url: '{{ route("logout") }}', // Replace with your actual logout route
-                data: {
-                    _token: '{{ csrf_token() }}'
-                }, // Include CSRF token
+                url: '../../database/logout.php', // Replace with your actual logout route
+
                 success: function(response) {
                     // Redirect to the login page
-                    window.location.href = '{{ route("login") }}';
+                    window.location.href = '../auth/login.php';
                 },
                 error: function(error) {
                     console.error('Error logging out:', error);
                     // Redirect to the login page even if there's an error
-                    window.location.href = '{{ route("login") }}';
+                    window.location.href = 'login.php';
                 }
             });
         });

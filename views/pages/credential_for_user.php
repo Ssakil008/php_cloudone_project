@@ -1,6 +1,8 @@
-@extends('layouts.app')
-@section('title','Credential For User')
-@section('content')
+<?php
+$title = 'Credential For User';
+include '../partials/header.php'; 
+?>
+
 
 <div class="clearfix"></div>
 
@@ -140,7 +142,7 @@
 <script src="../../assets/js/sidebar-menu.js"></script>
 <!-- Custom scripts -->
 <script src="../../assets/js/app-script.js"></script>
-<script src="alertify/lib/alertify.min.js"></script>
+<script src="../../alertify/lib/alertify.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
 <!-- ColVis JavaScript file -->
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
@@ -423,7 +425,7 @@
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "{{ route('getDynamicData')}}",
+                "url": "../../database/getDynamicData.php",
                 "type": "POST",
                 "data": {
                     menuId: menuId
@@ -607,6 +609,6 @@
     });
 </script>
 
-
-
-@endsection
+<?php
+include '../partials/footer.php'; 
+?>

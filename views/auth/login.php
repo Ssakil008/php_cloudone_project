@@ -53,11 +53,12 @@
                         <img src="../../assets/images/logo-icon.png" alt="logo icon">
                     </div>
                     <div class="card-title text-uppercase text-center py-3">Sign In</div>
-                    <form class="login-form" id="login-form">
+                    <form class="login-form" id="login-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                         <div class="form-group">
                             <label for="email" class="sr-only">Email ID</label>
                             <div class="position-relative has-icon-right">
-                                <input type="email" name="email" name="email" required placeholder="E-mail" class="form-control input-shadow">
+                                <input type="email" name="email" required placeholder="E-mail" class="form-control input-shadow">
+                                <span class="text-danger"><?php echo isset($errors['email']) ? $errors['email'] : ''; ?></span>
                                 <div class="form-control-position">
                                     <i class="zmdi zmdi-email"></i>
                                 </div>
@@ -68,6 +69,7 @@
                             <label for="pass" class="sr-only">Password</label>
                             <div class="position-relative has-icon-right">
                                 <input type="password" name="password" id="password" placeholder="Password" class="form-control input-shadow" />
+                                <span class="text-danger"><?php echo isset($errors['password']) ? $errors['password'] : ''; ?></span>
                                 <div class="form-control-position">
                                     <i class="zmdi zmdi-lock"></i>
                                 </div>
@@ -85,7 +87,7 @@
                                 <a href="authentication-reset-password.html">Reset Password</a>
                             </div>
                         </div>
-                        <button type="button" id="submit-btn" class="btn btn-primary btn-block">Sign In</button>
+                        <button type="submit" name="submit" class="btn btn-primary btn-block">Sign In</button>
                         <div class="text-center mt-3">Sign In With</div>
 
                         <div class="form-row mt-4">
@@ -101,7 +103,7 @@
                 </div>
             </div>
             <div class="card-footer text-center py-3">
-                <p class="text-dark mb-0">Do not have an account? <a href="register"> Sign Up here</a></p>
+                <p class="text-dark mb-0">Do not have an account? <a href="register.php"> Sign Up here</a></p>
             </div>
         </div>
 
@@ -145,20 +147,18 @@
 
     <script>
         $(document).ready(function() {
-            $('#submit-btn').click(function() {
-                // Get the form data
-                var formData = $('#login-form').serialize();
+            $('#login-form').submit(function(event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
                 console.log(formData);
-
-                // Make an Ajax request
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route("login-user") }}',
+                    url: '../../database/login_user.php',
                     data: formData,
                     success: function(response) {
+                        var response = JSON.parse(response); // Parse the JSON response
                         if (response.success) {
-                            // Redirect to the desired page
-                            window.location.href = '{{ route("dashboard") }}';
+                            window.location.href = '../pages/dashboard.php'; // Adjust the URL if needed
                         } else {
                             $('#errormessage').text('Incorrect email or password');
                             $('#errormodal').modal('show');
@@ -181,7 +181,5 @@
     </script>
 
 </body>
-
-<!-- Mirrored from codervent.com/bulona/demo/authentication-signin.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 26 Feb 2020 10:09:20 GMT -->
 
 </html>

@@ -105,7 +105,7 @@
 			 * Whether buttons are reversed (default is secondary/primary)
 			 * @type {Boolean}
 			 */
-			buttonReverse : true,
+			buttonReverse : false,
 
 			/**
 			 * Which button should be focused by default
@@ -238,7 +238,7 @@
 			 *
 			 * @return {String}             The appended button HTML strings
 			 */
-			appendButtons : function (primary,secondary) {
+			appendButtons : function (secondary, primary) {
 				return this.buttonReverse ? primary + secondary : secondary + primary;
 			},
 

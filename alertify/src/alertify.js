@@ -1,14 +1,4 @@
-/**
- * alertify
- * An unobtrusive customizable JavaScript notification system
- *
- * @author Fabien Doiron <fabien.doiron@gmail.com>
- * @copyright Fabien Doiron 2013
- * @license MIT <http://opensource.org/licenses/mit-license.php>
- * @link http://fabien-d.github.com/alertify.js/
- * @module alertify
- * @version 0.3.11
- */
+/*global define*/
 (function (global, undefined) {
 	"use strict";
 
@@ -105,7 +95,7 @@
 			 * Whether buttons are reversed (default is secondary/primary)
 			 * @type {Boolean}
 			 */
-			buttonReverse : true,
+			buttonReverse : false,
 
 			/**
 			 * Which button should be focused by default
@@ -238,7 +228,7 @@
 			 *
 			 * @return {String}             The appended button HTML strings
 			 */
-			appendButtons : function (primary,secondary) {
+			appendButtons : function (secondary, primary) {
 				return this.buttonReverse ? primary + secondary : secondary + primary;
 			},
 

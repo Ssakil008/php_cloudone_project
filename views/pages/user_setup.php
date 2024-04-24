@@ -1,6 +1,8 @@
-@extends('layouts.app')
-@section('title','User Setup')
-@section('content')
+<?php
+$title = 'User Setup';
+include '../partials/header.php'; 
+?>
+
 
 <div class="clearfix"></div>
 
@@ -121,7 +123,7 @@
 <script src="../../assets/js/sidebar-menu.js"></script>
 <!-- Custom scripts -->
 <script src="../../assets/js/app-script.js"></script>
-<script src="alertify/lib/alertify.min.js"></script>
+<script src="../../alertify/lib/alertify.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
 <!-- ColVis JavaScript file -->
 <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
@@ -509,4 +511,7 @@
         });
     });
 </script>
-@endsection
+
+<?php
+include '../partials/footer.php'; 
+?>

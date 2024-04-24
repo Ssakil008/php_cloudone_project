@@ -1,6 +1,7 @@
-@extends('layouts.app')
-@section('title','Role')
-@section('content')
+<?php
+$title = 'Role';
+include '../partials/header.php'; 
+?>
 
 <div class="clearfix"></div>
 
@@ -181,7 +182,7 @@
 <script src="../../assets/js/sidebar-menu.js"></script>
 <!-- Custom scripts -->
 <script src="../../assets/js/app-script.js"></script>
-<script src="alertify/lib/alertify.min.js"></script>
+<script src="../../alertify/lib/alertify.min.js"></script>
 
 <script>
     $(document).ready(function() {
@@ -688,4 +689,6 @@
     });
 </script>
 
-@endsection
+<?php
+include '../partials/footer.php'; 
+?>
