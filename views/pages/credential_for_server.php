@@ -29,8 +29,8 @@ include '../partials/header.php';
                         <th>IP Address</th>
                         <th>Username</th>
                         <th>Password</th>
-                        <!-- <th>Edit</th>
-                        <th>Delete</th> -->
+                        <th>Edit</th>
+                        <th>Delete</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -63,12 +63,12 @@ include '../partials/header.php';
                         <div class="row">
                             <div class="col-md-6 col-sm-6">
                                 <label for="credential_for">Name</label>
-                                <input type="text" id="credential_for" name="credential_for" required placeholder="Name" value="{{ old('name') }}" class="form-control input-shadow">
+                                <input type="text" id="credential_for" name="credential_for" required placeholder="Name" class="form-control input-shadow">
                                 <span class="text-danger" id="credential_for_error"></span>
                             </div>
                             <div class="col-md-6 col-sm-6">
                                 <label for="username">User Name</label>
-                                <input type="text" name="username" required id="username" placeholder="User Name" value="{{old('username')}}" class="form-control input-shadow">
+                                <input type="text" name="username" required id="username" placeholder="User Name" class="form-control input-shadow">
                                 <span class="text-danger" id="username_error"></span>
                             </div>
                         </div>
@@ -77,7 +77,7 @@ include '../partials/header.php';
 
                     <div class="form-group">
                         <label for="email">Email ID</label>
-                        <input type="email" id="email" name="email" name="email" required placeholder="E-mail" value="{{old('email')}}" class="form-control input-shadow">
+                        <input type="email" id="email" name="email" name="email" required placeholder="E-mail" class="form-control input-shadow">
                         <span class="text-danger" id="email_error"></span>
                     </div>
 
@@ -89,14 +89,14 @@ include '../partials/header.php';
 
                     <div class="form-group">
                         <label for="url">Website Name</label>
-                        <input type="url" name="url" required id="url" placeholder="Website Name" value="{{old('url')}}" class="form-control input-shadow">
+                        <input type="url" name="url" required id="url" placeholder="Website Name" class="form-control input-shadow">
                         <span class="text-danger" id="url_error"></span>
                     </div>
 
 
                     <div class="form-group">
                         <label for="ip_address">IP Address</label>
-                        <input type="text" id="ip_address" name="ip_address" required placeholder="e.g., 192.168.1.1" value="{{old('ip_address')}}" class="form-control input-shadow">
+                        <input type="text" id="ip_address" name="ip_address" required placeholder="e.g., 192.168.1.1" class="form-control input-shadow">
                         <span class="text-danger" id="ip_address_error"></span>
                     </div>
 
@@ -151,6 +151,8 @@ include '../partials/header.php';
 
 <script>
     $(document).ready(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var menuId = urlParams.get('id');
         // Clear form fields when the "Add New" button is clicked
         $('#addNewBtn').click(function() {
             $('#myForm')[0].reset();
@@ -160,18 +162,19 @@ include '../partials/header.php';
         });
 
         $(document).on('click', '#addNewBtn, #edit-btn', function() {
-            var menuId = '{{ $menuId }}'; // Replace with the actual menuId you want to check permissions for
             var entryId = $(this).data('entry-id');
             var buttonClicked = $(this).attr('id');
-            console.log(entryId, buttonClicked);
             if (buttonClicked === 'addNewBtn') {
                 var action = 'create';
             } else {
                 var action = 'edit';
             }
+
+            console.log(action, entryId, buttonClicked, menuId);
+
             // Make an AJAX call to check permissions
             $.ajax({
-                url: '{{ route("checkPermission") }}',
+                url: '../../database/checkPermission.php',
                 type: 'POST',
                 data: {
                     menuId: menuId,
@@ -179,16 +182,22 @@ include '../partials/header.php';
                 },
                 success: function(response) {
                     console.log(response);
+                    var response = JSON.parse(response);
                     if (response.success) {
                         // Show the modal
                         if (buttonClicked === 'addNewBtn') {
                             $('#myModal').modal('show');
                         } else if (buttonClicked === 'edit-btn') {
                             $.ajax({
-                                type: 'GET',
-                                url: '{{ url("get-entry") }}/' + entryId,
+                                type: 'POST',
+                                url: '../../database/get_entry.php',
+                                data: {
+                                    entryId: entryId,
+                                },
+                                dataType: 'json', // Specify JSON dataType to parse response automatically
                                 success: function(response) {
                                     // Check if the response has the 'data' property
+                                    console.log(response)
                                     if (response.hasOwnProperty('data')) {
                                         var entry = response.data;
 
@@ -228,9 +237,7 @@ include '../partials/header.php';
                 }
             });
         });
-    });
 
-    $(document).ready(function() {
         $('#submitBtn').click(function(e) {
             var isValid = validateForm();
             if (isValid) {
@@ -270,20 +277,22 @@ include '../partials/header.php';
                     if (e) {
                         $.ajax({
                             type: 'POST',
-                            url: '{{ route("upsertCredential") }}',
+                            url: '../../database/upsertCredential.php',
                             data: formData,
+                            dataType: 'json',
                             success: function(response) {
+                                console.log(response);
                                 if (response.success) {
                                     $('#myModal').modal('hide');
                                     $('#successmessage').text(response.message);
                                     $('#successmodal').modal('show');
                                     setTimeout(function() {
                                         $('#successmodal').modal('hide');
-                                        window.location.href = '{{ route("credential_for_server") }}';
+                                        window.location.reload();
                                     }, 2000);
                                 } else {
                                     $('#myModal').modal('hide');
-                                    showErrorModal([response.errors]);
+                                    showErrorModal([response.message]); // Assuming errors are returned as a message
                                 }
                             },
                             error: function(xhr, status, error) {
@@ -311,72 +320,48 @@ include '../partials/header.php';
             });
             return isValid;
         }
-    });
 
-    $(document).ready(function() {
-        var menuId = '{{ $menuId }}';
-        var editPermission = '{{ $editPermission }}';
-        var deletePermission = '{{ $deletePermission }}';
-        // Define DataTable columns dynamically based on permissions
         var columns = [{
-                "data": "id",
-                // "data": null,
-                // "render": function(data, type, row, meta) {
-                //     return meta.row + 1;
-                // }
+                "data": null,
+                "render": function(data, type, row, meta) {
+                    return meta.row + 1;
+                }
             },
             {
-                "data": "credential_for"
+                "data": "1"
             },
             {
-                "data": "email"
+                "data": "2"
             },
             {
-                "data": "mobile"
+                "data": "3"
             },
             {
-                "data": "url"
+                "data": "4"
             },
             {
-                "data": "ip_address"
+                "data": "5"
             },
             {
-                "data": "username"
+                "data": "6"
             },
             {
-                "data": "password"
-            }
+                "data": "7"
+            },
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-entry-id="' + data + '"></i>';
+                }
+            },
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-entry-id="' + data + '"></i> ';
+                }
+            },
         ];
 
-        // Check if user has edit permission, then add edit column
-        // if (editPermission === 'yes') {
-        //     columns.push({
-        //         "data": "edit",
-        //         "render": function(data, type, row) {
-        //             if (!data) {
-        //                 return '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-entry-id="' + row.id + '"></i>';
-        //             } else {
-        //                 return data;
-        //             }
-        //         }
-        //     });
-        // }
-
-        // Check if user has delete permission, then add delete column
-        // if (deletePermission === 'yes') {
-        //     columns.push({
-        //         "data": "delete",
-        //         "render": function(data, type, row) {
-        //             if (!data) {
-        //                 return '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-entry-id="' + row.id + '"></i>';
-        //             } else {
-        //                 return data;
-        //             }
-        //         }
-        //     });
-        // }
-
-        // Initialize DataTable with the dynamic columns
         $('#entries-table').dataTable({
             "scrollX": true,
             "pagingType": "numbers",
@@ -384,10 +369,7 @@ include '../partials/header.php';
             "serverSide": true,
             "ajax": {
                 "url": "../../database/get_entries.php",
-                "type": "POST",
-                "data": {
-                    menuId: menuId
-                },
+                "type": "GET",
             },
             "columns": columns,
             "dom": 'Bfrtip', // Custom dom structure with buttons
@@ -413,59 +395,19 @@ include '../partials/header.php';
             ]
         });
 
-        // $('#entries-table').on('click', '.edit-btn', function() {
-        //     // Retrieve entry ID from the clicked button
-        //     var entryId = $(this).data('entry-id');
-        //     console.log(entryId);
-
-        //     // Make an AJAX request to get the entry data based on the ID
-        //     $.ajax({
-        //         type: 'GET',
-        //         url: '{{ url("get-entry") }}/' + entryId,
-        //         success: function(response) {
-        //             // Check if the response has the 'data' property
-        //             if (response.hasOwnProperty('data')) {
-        //                 var entry = response.data;
-
-        //                 // Populate the modal with the entry data
-        //                 $('#myModal .text-danger').text('');
-        //                 $('#myModal').modal('show');
-        //                 $('#entryId').val(entry.id);
-        //                 $('#credential_for').val(entry.credential_for);
-        //                 $('#email').val(entry.email);
-        //                 $('#mobile').val(entry.mobile);
-        //                 $('#url').val(entry.url);
-        //                 $('#ip_address').val(entry.ip_address);
-        //                 $('#username').val(entry.username);
-        //                 $('#password').val(entry.password);
-        //                 $('#submitBtn').text('Update');
-        //                 $('.modal-title').html('<strong>Edit The User</strong>');
-        //             } else {
-        //                 console.error('Invalid response structure:', response);
-        //             }
-        //         },
-        //         error: function(error) {
-        //             console.error('Error fetching entry:', error);
-        //         }
-        //     });
-        // });
-
         $('#entries-table').on('click', '.delete-btn', function() {
             var id = $(this).data('entry-id');
-            var menuId = '{{ $menuId }}';
             console.log(id, menuId);
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
                     $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
                         type: 'POST',
-                        url: '{{ route("deleteCredential") }}',
+                        url: '../../database/deleteCredential.php',
                         data: {
                             id: id,
                             menuId: menuId,
                         },
+                        dataType: 'json',
                         success: function(response) {
                             console.log(response);
                             if (response.success) {
@@ -473,22 +415,17 @@ include '../partials/header.php';
                                 $('#successmodal').modal('show');
                                 setTimeout(function() {
                                     $('#successmodal').modal('hide');
-                                    window.location.href = '{{ route("credential_for_server") }}';
+                                    window.location.reload();
                                 }, 2000);
                             } else {
-                                $('#errormessage').text(response.message); // Show error message
-                                $('#errormodal').modal('show');
-                                setTimeout(function() {
-                                    $('#errormodal').modal('hide');
-                                }, 2000);
+                                showErrorModal([response.message]);
                             }
                         },
-                        error: function(error) {
-                            $('#errormessage').text(response.message); // Show error message
-                            $('#errormodal').modal('show');
-                            setTimeout(function() {
-                                $('#errormodal').modal('hide');
-                            }, 2000);
+                        error: function(xhr, status, error) {
+                            console.error('AJAX error:', error);
+                            $('#myModal').modal('hide');
+                            var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+                            showErrorModal([errorMessage]);
                         }
                     });
                 }

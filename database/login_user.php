@@ -10,8 +10,6 @@ $email = $_POST['email'];
 $password = $_POST['password'];
 
 try {
-    // Establish a database connection (already included in database.php)
-
     // Prepare SQL statement to select user based on email
     $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
@@ -19,6 +17,14 @@ try {
 
     // Verify user's password
     if ($user && password_verify($password, $user['password'])) {
+    $stmt = $pdo->prepare("SELECT * FROM user_role WHERE user_id = ?");
+    $stmt->execute([$user['id']]);
+    $role = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $stmt = $pdo->prepare("SELECT * FROM permissions WHERE role_id = ?");
+    $stmt->execute([$role['role_id']]);
+    $permissions = $stmt->fetch(PDO::FETCH_ASSOC);
+
         // User authenticated successfully
         
         // Store user data in session
@@ -26,6 +32,7 @@ try {
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['mobile'] = $user['mobile'];
+        $_SESSION['permissions'] = $permissions;
 
         // Return success message
         echo json_encode(['success' => true, 'message' => 'User authenticated successfully']);

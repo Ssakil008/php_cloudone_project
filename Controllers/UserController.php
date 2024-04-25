@@ -126,8 +126,9 @@ class UserController extends Controller
         return response()->json(['data' => $data]);
     }
 
-    public function getEntry($id)
+    public function getEntry(Request $request)
     {
+        $id = $request->input('entryId');
         $entry = CredentialForServer::find($id);
 
         if ($entry) {
@@ -211,37 +212,6 @@ class UserController extends Controller
         } else {
             return response()->json(['error' => 'Entry not found'], 404);
         }
-    }
-
-    public function getMoreInfo($id)
-    {
-        $data = AdditionalInformation::where('credential_for_user_id', $id)->get();
-
-        if ($data->isEmpty()) {
-            return response()->json(['error' => 'Additional Information is empty'], 404);
-        }
-
-        // Modify field_name values
-        $data->transform(function ($item, $key) {
-            $item['field_name'] = $this->formatFieldName($item['field_name']);
-            return $item;
-        });
-
-        return response()->json(['data' => $data]);
-    }
-
-    private function formatFieldName($fieldName)
-    {
-        // Remove underscores, hyphens, and other symbols
-        $formattedFieldName = str_replace(['_', '-'], ' ', $fieldName);
-
-        // Separate words in camelCase
-        $formattedFieldName = preg_replace('/(?<!^)([A-Z][a-z]|(?<=[a-z])[A-Z])/', ' $1', $formattedFieldName);
-
-        // Capitalize the first letter of each word
-        $formattedFieldName = ucwords($formattedFieldName);
-
-        return $formattedFieldName;
     }
 
 

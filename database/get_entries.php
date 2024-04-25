@@ -13,10 +13,10 @@ $columns = array(
     array('db' => 'credential_for',  'dt' => 1),
     array('db' => 'email',   'dt' => 2),
     array('db' => 'mobile', 'dt' => 3,),
-    array('db' => 'url', 'dt' => 3,),
-    array('db' => 'ip_address', 'dt' => 3,),
-    array('db' => 'username', 'dt' => 3,),
-    array('db' => 'password', 'dt' => 3,),
+    array('db' => 'url', 'dt' => 4,),
+    array('db' => 'ip_address', 'dt' => 5,),
+    array('db' => 'username', 'dt' => 6,),
+    array('db' => 'password', 'dt' => 7,),
 );
 
 $sql_details = array(
@@ -32,6 +32,3 @@ require('ssp.class.php');
 echo json_encode(
     SSP::simple($_GET, $sql_details, $table, $primaryKey, $columns)
 );
-?>
-
-?>

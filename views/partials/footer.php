@@ -76,8 +76,9 @@
                 var response = JSON.parse(response);
                 if (response.sidebarMenu) {
                     response.sidebarMenu.forEach(function(menu) {
+                        // Append menu item to sidebar with id as data attribute
                         $('#sidebarMenu').append(
-                            '<li><a href="../pages/' + menu.link + '.php"><i class="zmdi zmdi-dot-circle-alt"></i> ' + menu.name + '</a></li>'
+                            '<li><a href="../pages/' + menu.link + '.php" data-menu-id="' + menu.id + '"><i class="zmdi zmdi-dot-circle-alt"></i> ' + menu.name + '</a></li>'
                         );
                     });
                 } else {
@@ -87,6 +88,16 @@
             error: function(error) {
                 console.error('Error fetching sidebar menu:', error);
             }
+        });
+
+        // Add click event listener to menu items
+        $('#sidebarMenu').on('click', 'a', function(e) {
+            // Prevent default link behavior
+            e.preventDefault();
+            // Retrieve the id from data attribute
+            var menuId = $(this).data('menu-id');
+            // Navigate to corresponding page with menu id as parameter
+            window.location.href = $(this).attr('href') + '?id=' + menuId;
         });
     });
 

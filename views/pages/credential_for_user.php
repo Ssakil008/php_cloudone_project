@@ -1,6 +1,6 @@
 <?php
 $title = 'Credential For User';
-include '../partials/header.php'; 
+include '../partials/header.php';
 ?>
 
 
@@ -12,11 +12,9 @@ include '../partials/header.php';
             <div class="col-sm-9">
                 <h4 class="page-title">Credential For User</h4>
             </div>
-            @if ($createPermission == 'yes')
             <div class="col-lg-3 col-md-3 col-sm-3 text-right">
                 <button type="button" id="addNewBtn" class="btn btn-primary btn-sm">Add Credential</button>
             </div>
-            @endif
         </div>
 
         <div class="table-responsive">
@@ -29,12 +27,8 @@ include '../partials/header.php';
                         <th>Mobile</th>
                         <th>Password</th>
                         <th>More Info</th>
-                        @if ($editPermission == 'yes')
                         <th>Edit</th>
-                        @endif
-                        @if ($deletePermission == 'yes')
                         <th>Delete</th>
-                        @endif
                         <!-- Thead will be generated dynamically by DataTables -->
                     </tr>
                 </thead>
@@ -61,17 +55,16 @@ include '../partials/header.php';
             <div class="modal-body">
                 <!-- Your form goes here -->
                 <form id="dynamicForm">
-                    @csrf
                     <input type="hidden" name="userId" id="userId">
                     <div class="form-group">
                         <label for="name">Name</label>
-                        <input type="text" id="name" name="name" required placeholder="Name" value="{{ old('name') }}" class="form-control input-shadow">
+                        <input type="text" id="name" name="name" required placeholder="Name" class="form-control input-shadow">
                         <span class="text-danger" id="name_error"></span>
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email ID</label>
-                        <input type="email" id="email" name="email" name="email" required placeholder="E-mail" value="{{old('email')}}" class="form-control input-shadow">
+                        <input type="email" id="email" name="email" name="email" required placeholder="E-mail" class="form-control input-shadow">
                         <span class="text-danger" id="email_error"></span>
                     </div>
 
@@ -108,7 +101,7 @@ include '../partials/header.php';
     <div class="modal-dialog">
         <div class="modal-content animated zoomInUp">
             <div class="modal-header">
-                <h5 class="modal-title">Additional Information</h5>
+                <h5 class="modal-title"></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -116,9 +109,9 @@ include '../partials/header.php';
             <div class="modal-body">
                 <div class="additonal_information">
                     <table id="more_info_table" style="border-collapse: collapse; width: 100%;">
-                        <tr>
-                            <th style="text-align: center; vertical-align: middle; border: 1px solid black;">Field Name</th>
-                            <th style="text-align: center; vertical-align: middle; border: 1px solid black;">Field Value</th>
+                        <tr style="text-align: center; vertical-align: middle; border: 1px solid black; color: #000; font-family: Robot;">
+                            <th>Field Name</th>
+                            <th>Field Value</th>
                         </tr>
                     </table>
                 </div>
@@ -166,6 +159,9 @@ include '../partials/header.php';
 
 <script>
     $(document).ready(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var menuId = urlParams.get('id');
+
         $('#addNewBtn').click(function() {
             $('#dynamicForm')[0].reset();
             $(".dynamic-field").remove();
@@ -175,18 +171,19 @@ include '../partials/header.php';
         });
 
         $(document).on('click', '#addNewBtn, #edit-btn', function() {
-            var menuId = '{{ $menuId }}'; // Replace with the actual menuId you want to check permissions for
             var userId = $(this).data('user-id');
             var buttonClicked = $(this).attr('id');
-            console.log(userId, buttonClicked);
             if (buttonClicked === 'addNewBtn') {
                 var action = 'create';
             } else {
                 var action = 'edit';
             }
+
+            console.log(action, userId, buttonClicked, menuId);
+
             // Make an AJAX call to check permissions
             $.ajax({
-                url: '{{ route("checkPermission") }}',
+                url: '../../database/checkPermission.php',
                 type: 'POST',
                 data: {
                     menuId: menuId,
@@ -194,16 +191,22 @@ include '../partials/header.php';
                 },
                 success: function(response) {
                     console.log(response);
+                    var response = JSON.parse(response);
                     if (response.success) {
                         // Show the modal
                         if (buttonClicked === 'addNewBtn') {
                             $('#addUserModal').modal('show');
                         } else if (buttonClicked === 'edit-btn') {
                             $.ajax({
-                                type: 'GET',
-                                url: '{{ url("getCredentialForUserData") }}/' + userId,
+                                type: 'POST',
+                                url: '../../database/getCredentialForUserData.php',
+                                data: {
+                                    userId: userId,
+                                },
+                                dataType: 'json', // Specify JSON dataType to parse response automatically
                                 success: function(response) {
-                                    console.log(response);
+                                    // Check if the response has the 'data' property
+                                    console.log(response)
                                     if (response.hasOwnProperty('data')) {
                                         var user = response.data;
                                         $('#dynamicForm')[0].reset();
@@ -277,7 +280,7 @@ include '../partials/header.php';
             var isValid = validateForm();
             if (isValid) {
                 // Create a new FormData object
-                var formData = new FormData($('#dynamicForm')[0]);
+                var formData = new FormData($('#dynamicForm'));
 
                 // Get the email from the form
                 var email = document.getElementById('email').value;
@@ -300,18 +303,18 @@ include '../partials/header.php';
 
                 e.preventDefault(); // Prevent default form submission behavior
 
+                console.log(formData);
+
                 alertify.confirm('Are you sure?', function(e) {
                     if (e) {
                         // AJAX request to submit form data
                         $.ajax({
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            url: "{{ route('storeDynamicData') }}",
+                            url: "../../database/storeDynamicData.php",
                             type: "POST",
                             data: formData,
                             contentType: false,
                             processData: false,
+                            dataType: 'json',
                             success: function(response) {
                                 console.log(response);
                                 $('#addUserModal').modal('hide');
@@ -320,7 +323,7 @@ include '../partials/header.php';
                                 setTimeout(function() {
                                     $('#successmodal').modal('hide');
                                     // Redirect to user setup page
-                                    window.location.replace('{{ route("credential_for_user") }}');
+                                    window.location.reload();
                                 }, 2000);
                             },
                             error: function(xhr, status, error) {
@@ -367,12 +370,8 @@ include '../partials/header.php';
 
             return isValid;
         }
-    });
 
-    $(document).ready(function() {
-        var menuId = '{{ $menuId }}';
-        var editPermission = '{{ $editPermission }}';
-        var deletePermission = '{{ $deletePermission }}';
+
         var columns = [{
                 "data": null,
                 "render": function(data, type, row, meta) {
@@ -380,56 +379,64 @@ include '../partials/header.php';
                 }
             },
             {
-                "data": "name"
+                "data": "1" // This corresponds to the 'name' column returned by PHP
             },
             {
-                "data": "email"
+                "data": "2" // This corresponds to the 'email' column returned by PHP
             },
             {
-                "data": "mobile"
+                "data": "3" // This corresponds to the 'mobile' column returned by PHP
             },
             {
-                "data": "password"
+                "data": "4" // This corresponds to the 'password' column returned by PHP
             },
             {
-                "data": "information",
+                "data": "0",
                 // "render": function(data, type, row) {
                 //     return data ? data : '<a href="/additional_information/' + row.id + '" class="show-info align-middle text-info">Show</a>';
                 // }
                 "render": function(data, type, row) {
-                    return data ? data : '<a href="#" class="show-info align-middle text-info" data-user-id="' + row.id + row.name + '">Show</a> ';
+                    return '<a href="#" class="show-info align-middle text-info" data-user-id="' + data + '">Show</a> ';
                 }
             },
-
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-user-id="' + data + '"></i>';
+                }
+            },
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-user-id="' + data + '"></i> ';
+                }
+            },
         ];
 
-        if (editPermission === 'yes') {
-            columns.push({
-                "data": "edit",
-                "render": function(data, type, row) {
-                    return data ? data : '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-user-id="' + row.id + '"></i>';
-                }
-            });
-        }
+        // if (editPermission === 'yes') {
+        //     columns.push({
+        //         "data": "edit",
+        //         "render": function(data, type, row) {
+        //             return data ? data : '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-user-id="' + row.id + '"></i>';
+        //         }
+        //     });
+        // }
 
-        if (deletePermission === 'yes') {
-            columns.push({
-                "data": "delete",
-                "render": function(data, type, row) {
-                    return data ? data : '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-user-id="' + row.id + '"></i> ';
-                }
-            });
-        }
+        // if (deletePermission === 'yes') {
+        //     columns.push({
+        //         "data": "delete",
+        //         "render": function(data, type, row) {
+        //             return data ? data : '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-user-id="' + row.id + '"></i> ';
+        //         }
+        //     });
+        // }
 
         var table = $('#dataTable').DataTable({
             "processing": true,
             "serverSide": true,
             "ajax": {
                 "url": "../../database/getDynamicData.php",
-                "type": "POST",
-                "data": {
-                    menuId: menuId
-                },
+                "type": "GET",
             },
             "columns": columns,
             "dom": 'Bfrtip', // Custom dom structure with buttons
@@ -457,7 +464,6 @@ include '../partials/header.php';
 
         $('#dataTable').on('click', '.delete-btn', function() {
             var id = $(this).data('user-id');
-            var menuId = '{{ $menuId }}';
             console.log(id, menuId);
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
@@ -533,82 +539,72 @@ include '../partials/header.php';
         // });
 
         $(document).on('click', '.show-info', function() {
-            var userId = $(this).data('user-id'); // Getting user id from data attribute
-            var matches = userId.match(/^(\d+)([^\d]+)$/); // Using regex to extract id and name
-            if (matches && matches.length === 3) {
-                var id = matches[1]; // Extracting id from matches
-                var name = matches[2]; // Extracting name from matches
+            var userId = $(this).data('user-id');
 
-                console.log(userId);
-                console.log(id);
-                console.log(name);
-                $.ajax({
-                    type: 'GET',
-                    url: '{{ url("getMoreInfo") }}/' + id,
-                    success: function(response) {
-                        if (response.hasOwnProperty('data')) {
-                            var users = response.data;
-                            var table = $('#more_info_table');
-                            // Remove all rows from the table
-                            $("#more_info_table").find("td").remove();
+            console.log(userId);
+            $.ajax({
+                type: 'POST',
+                url: '../../database/getMoreInfo.php',
+                data: {
+                    userId: userId
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.hasOwnProperty('data')) {
+                        var users = response.data;
+                        var table = $('#more_info_table');
+                        // Remove all rows from the table
+                        $("#more_info_table").find("td").remove();
 
-                            // Iterate over the received data and populate table rows
-                            $.each(users, function(index, row) {
-                                var tableRow = $('<tr>');
-
-                                // Create table cells for field_name and field_value
-                                var fieldNameCell = $('<td>').css({
-                                    'font - family': 'Roboto',
-                                    'color': '#000',
-                                    'text-align': 'center',
-                                    'vertical-align': 'middle',
-                                    'border': '1px solid black',
-                                }).html(row.field_name);
-
-                                var fieldValueCell = $('<td>').css({
-                                    'font - family': 'Roboto',
-                                    'color': '#000',
-                                    'text-align': 'center',
-                                    'vertical-align': 'middle',
-                                    'border-bottom': '1px solid black',
-                                    'border-right': '1px solid black',
-                                }).html(row.field_value);
-
-                                // Append the cells to the row
-                                tableRow.append(fieldNameCell);
-                                tableRow.append(fieldValueCell);
-
-                                // Append the row to the table
-                                $('#more_info_table').append(tableRow);
+                        // Iterate over the received data and populate table rows
+                        $.each(users, function(index, row) {
+                            var tableRow = $('<tr>').css({
+                                'font - family': 'Roboto',
+                                'color': '#000',
+                                'text-align': 'center',
+                                'vertical-align': 'middle',
+                                'border': '1px solid black',
                             });
 
-                            // Show the modal after populating the table
-                            $("#more_info").modal("show");
-                        };
-                    },
+                            // Create table cells for field_name and field_value
+                            var fieldNameCell = $('<td>').html(row.field_name);
 
-                    error: function(xhr, status, error) {
-                        // Handle error
-                        console.error('Error fetching additional information:', error);
-                        var errorMessage = "Failed to process the request.";
-                        if (xhr.responseJSON && xhr.responseJSON.error) {
-                            errorMessage = xhr.responseJSON.error;
-                        }
-                        // Display error message
-                        $('#errormessage').text(errorMessage);
-                        $('#errormodal').modal('show');
-                        setTimeout(function() {
-                            $('#errormodal').modal('hide');
-                        }, 2000);
+                            var fieldValueCell = $('<td>').html(row.field_value);
+
+                            // Append the cells to the row
+                            tableRow.append(fieldNameCell);
+                            tableRow.append(fieldValueCell);
+
+                            // Append the row to the table
+                            $('.modal-title').html('<strong>Additional Information</strong>');
+                            $('#more_info_table').append(tableRow);
+                        });
+
+                        // Show the modal after populating the table
+                        $("#more_info").modal("show");
+                    };
+                },
+
+                error: function(xhr, status, error) {
+                    // Handle error
+                    console.error('Error fetching additional information:', error);
+                    var errorMessage = "Failed to process the request.";
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
                     }
-                });
-            } else {
-                console.log("Invalid userId format: " + userId);
-            }
+                    // Display error message
+                    $('#errormessage').text(errorMessage);
+                    $('#errormodal').modal('show');
+                    setTimeout(function() {
+                        $('#errormodal').modal('hide');
+                    }, 2000);
+                }
+            });
+
         });
     });
 </script>
 
 <?php
-include '../partials/footer.php'; 
+include '../partials/footer.php';
 ?>
