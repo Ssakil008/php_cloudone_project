@@ -1,6 +1,6 @@
 <?php
 $title = 'Menu Setup';
-include '../partials/header.php'; 
+include '../partials/header.php';
 ?>
 
 <div class="clearfix"></div>
@@ -11,11 +11,9 @@ include '../partials/header.php';
             <div class="col-sm-9">
                 <h4 class="page-title">Menu Details</h4>
             </div>
-            @if ($createPermission == 'yes')
             <div class="col-lg-3 col-md-3 col-sm-3 text-right">
                 <button type="button" id="addNewBtn" class="btn btn-primary btn-sm">Add New Menu</button>
             </div>
-            @endif
         </div>
 
 
@@ -26,12 +24,8 @@ include '../partials/header.php';
                         <th>Serial No</th>
                         <th>Menu Name</th>
                         <th>Menu Link</th>
-                        @if ($editPermission == 'yes')
                         <th>Edit</th>
-                        @endif
-                        @if ($deletePermission == 'yes')
                         <th>Delete</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -59,7 +53,6 @@ include '../partials/header.php';
                 <!-- Your form goes here -->
 
                 <form id="menuForm">
-                    @csrf
                     <input type="hidden" name="menuId" id="menuId">
                     <div class="form-group">
                         <label for="name">Name</label>
@@ -120,15 +113,15 @@ include '../partials/header.php';
 
 <script>
     $(document).ready(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var menuId = urlParams.get('id');
+
         $('#addNewBtn').click(function() {
             $('#menuForm')[0].reset();
             $('#menuSubmit').text('Submit');
             $('.modal-title').html('<strong>Add New Menu</strong>');
             $('#addMenuModal .text-danger').text('');
         });
-    });
-
-    $(document).ready(function() {
 
         $('#menuSubmit').click(function(e) {
             var isValid = validateForm();
@@ -154,27 +147,41 @@ include '../partials/header.php';
         function submitFormData(formData) {
             $.ajax({
                 type: 'POST',
-                url: '{{ route("upsertMenu") }}',
+                url: '../../database/upsertMenu.php',
                 data: formData,
+                dataType: 'json',
                 success: function(response) {
+                    console.log(response);
                     if (response.success) {
                         $('#addMenuModal').modal('hide');
                         $('#successmessage').text(response.message);
                         $('#successmodal').modal('show');
                         setTimeout(function() {
                             $('#successmodal').modal('hide');
-                            window.location.href = '{{ route("menu_setup") }}';
+                            window.location.reload();
                         }, 2000);
                     } else {
                         // Handle server-side errors
                         $('#addMenuModal').modal('hide');
-                        showErrorModal(response.errors);
+
+                        // Check if there's a message field in the response JSON
+                        var errorMessage = response.message || 'An unknown error occurred.';
+
+                        // Show error modal with the error message
+                        showErrorModal([errorMessage]);
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX error:', error);
                     $('#addMenuModal').modal('hide');
                     var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                    // Extract the error message from the response JSON if available
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    // Show error modal with the error message
                     showErrorModal([errorMessage]);
                 }
             });
@@ -206,25 +213,26 @@ include '../partials/header.php';
             return isValid;
         }
 
-
         $(document).on('click', '#addNewBtn, #edit-btn', function() {
-            var menuId = '{{ $menuId }}'; // Replace with the actual menuId you want to check permissions for
-            var menu_Id = $(this).data('menu-id');
+            var menu_id = $(this).data('menu-id');
             var buttonClicked = $(this).attr('id');
-            console.log(menuId, buttonClicked);
             if (buttonClicked === 'addNewBtn') {
                 var action = 'create';
             } else {
                 var action = 'edit';
             }
+
+            console.log(menuId, buttonClicked, action, menu_id);
+
             // Make an AJAX call to check permissions
             $.ajax({
-                url: '{{ route("checkPermission") }}',
+                url: '../../database/checkPermission.php',
                 type: 'POST',
                 data: {
                     menuId: menuId,
                     action: action
                 },
+                dataType: 'json',
                 success: function(response) {
                     console.log(response);
                     if (response.success) {
@@ -232,8 +240,12 @@ include '../partials/header.php';
                             $('#addMenuModal').modal('show');
                         } else if (buttonClicked === 'edit-btn') {
                             $.ajax({
-                                type: 'GET',
-                                url: '{{ url("getMenuData") }}/' + menu_Id,
+                                type: 'POST',
+                                url: '../../database/getMenuData.php',
+                                data: {
+                                    menu_id: menu_id
+                                },
+                                dataType: 'json',
                                 success: function(response) {
                                     console.log(response);
                                     if (response.hasOwnProperty('data')) {
@@ -269,13 +281,7 @@ include '../partials/header.php';
                 }
             });
         });
-    });
 
-    $(document).ready(function() {
-        var menuId = '{{ $menuId }}';
-        var editPermission = '{{ $editPermission }}';
-        var deletePermission = '{{ $deletePermission }}';
-        // Define DataTable columns dynamically based on permissions
         var columns = [{
                 "data": null,
                 "render": function(data, type, row, meta) {
@@ -283,63 +289,70 @@ include '../partials/header.php';
                 }
             },
             {
-                "data": "name"
+                "data": "1"
             },
             {
-                "data": "link"
+                "data": "2"
+            },
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-menu-id="' + data + '"></i>';
+                }
+            },
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-menu-id="' + data + '"></i> ';
+                }
             },
         ];
 
         // Check if menu has edit permission, then add edit column
-        if (editPermission === 'yes') {
-            columns.push({
-                "data": "edit",
-                "render": function(data, type, row) {
-                    return data ? data : '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-menu-id="' + row.id + '"></i>';
-                }
-            });
-        }
+        // if (editPermission === 'yes') {
+        //     columns.push({
+        //         "data": "edit",
+        //         "render": function(data, type, row) {
+        //             return data ? data : '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-menu-id="' + row.id + '"></i>';
+        //         }
+        //     });
+        // }
 
         // Check if menu has delete permission, then add delete column
-        if (deletePermission === 'yes') {
-            columns.push({
-                "data": "delete",
-                "render": function(data, type, row) {
-                    return data ? data : '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-menu-id="' + row.id + '"></i> ';
-                }
-            });
-        }
+        // if (deletePermission === 'yes') {
+        //     columns.push({
+        //         "data": "delete",
+        //         "render": function(data, type, row) {
+        //             return data ? data : '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-menu-id="' + row.id + '"></i> ';
+        //         }
+        //     });
+        // }
 
         // Initialize DataTable with the dynamic columns
         $('#menu-table').DataTable({
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "{{ route('getAllMenuData')}}",
-                "type": "POST",
-                "data": {
-                    menuId: menuId
-                }
+                "url": "../../database/getAllMenuData.php",
+                "type": "GET",
+                "dataType": "json",
             },
             "columns": columns,
         });
 
         $('#menu-table').on('click', '.delete-btn', function() {
             var id = $(this).data('menu-id');
-            var menuId = '{{ $menuId }}';
             console.log(id, menuId);
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
                     $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
                         type: 'POST',
-                        url: '{{ route("deleteMenuData") }}',
+                        url: '../../database/deleteMenuData.php',
                         data: {
                             id: id,
                             menuId: menuId,
                         },
+                        dataType: 'json',
                         success: function(response) {
                             console.log(response);
                             if (response.success) {
@@ -347,7 +360,7 @@ include '../partials/header.php';
                                 $('#successmodal').modal('show');
                                 setTimeout(function() {
                                     $('#successmodal').modal('hide');
-                                    window.location.href = '{{ route("menu_setup") }}';
+                                    window.location.reload();
                                 }, 2000);
                             } else {
                                 $('#errormessage').text(response.message); // Show error message
@@ -372,5 +385,5 @@ include '../partials/header.php';
 </script>
 
 <?php
-include '../partials/footer.php'; 
+include '../partials/footer.php';
 ?>

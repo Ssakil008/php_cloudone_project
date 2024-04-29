@@ -1,16 +1,14 @@
 <?php
 session_start(); // Start the session
 
-$table = 'credential_for_users';
+$table = 'menus';
 
 $primaryKey = 'id';
 
 $columns = array(
     array('db' => 'id', 'dt' => 0),
     array('db' => 'name',  'dt' => 1),
-    array('db' => 'email',   'dt' => 2),
-    array('db' => 'mobile', 'dt' => 3),
-    array('db' => 'password', 'dt' => 4),
+    array('db' => 'link',   'dt' => 2),
 );
 
 $sql_details = array(

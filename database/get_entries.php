@@ -1,9 +1,6 @@
 <?php
 session_start(); // Start the session
 
-// Include the database configuration file
-require_once 'database.php';
-
 $table = 'credential_for_servers';
 
 $primaryKey = 'id';
