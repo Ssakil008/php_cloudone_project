@@ -1,6 +1,6 @@
 <?php
 $title = 'Role';
-include '../partials/header.php'; 
+include '../partials/header.php';
 ?>
 
 <div class="clearfix"></div>
@@ -12,12 +12,10 @@ include '../partials/header.php';
     <div class="content-body">
         <div class="row">
             <div class="col-lg-12 my-1">
-                @if ($createPermission == 'yes')
                 <div class="d-flex justify-content-between">
                     <button type="button" id="addNewBtn" class="btn btn-info btn-sm"><i class="icon-plus"></i> New Role</button>
                     <button type="button" id="addNewPermission" class="btn btn-info btn-sm" disabled><i class="fa fa-pencil-square-o"></i> Add Permission</button>
                 </div>
-                @endif
             </div>
         </div>
 
@@ -62,12 +60,8 @@ include '../partials/header.php';
                                         <th>Can Create</th>
                                         <th>Can Edit</th>
                                         <th>Can Delete</th>
-                                        @if ($editPermission == 'yes')
                                         <th>Edit</th>
-                                        @endif
-                                        @if ($deletePermission == 'yes')
                                         <th>Delete</th>
-                                        @endif
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -99,7 +93,6 @@ include '../partials/header.php';
             </div>
             <div class="modal-body">
                 <form id="addRoleForm">
-                    @csrf
                     <input type="hidden" name="roleId" id="roleId">
                     <div class="form-group">
                         <label for="role">Role</label>
@@ -131,7 +124,6 @@ include '../partials/header.php';
             </div>
             <div class="modal-body">
                 <form id="permissionForm">
-                    @csrf
                     <div class="form-group">
                         <input type="hidden" name="permissionId" id="permissionId">
                         <input type="hidden" name="role_id" id="role_id">
@@ -186,6 +178,9 @@ include '../partials/header.php';
 
 <script>
     $(document).ready(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var menuId = urlParams.get('id');
+
         $('#addNewBtn').click(function() {
             $('#addRoleForm')[0].reset();
             $('#roleSubmit').text('Submit');
@@ -286,9 +281,7 @@ include '../partials/header.php';
             });
         });
 
-    });
 
-    $(document).ready(function() {
         $('#roleSubmit').click(function() {
             var isValid = validateForm();
             if (isValid) {
@@ -298,8 +291,9 @@ include '../partials/header.php';
                     if (e) {
                         $.ajax({
                             type: 'POST',
-                            url: '{{ route("upsertRole") }}',
+                            url: '../../database/upsertRole.php',
                             data: formData,
+                            dataType: 'json',
                             success: function(response) {
                                 if (response.success) {
                                     $('#newRoleModal').modal('hide');
@@ -339,20 +333,14 @@ include '../partials/header.php';
             });
             return isValid;
         }
-    });
-
-    $(document).ready(function() {
-        // Fetch roles data from the server
-        var menuId = '{{ $menuId }}';
-        var editPermission = '{{ $editPermission }}';
-        var deletePermission = '{{ $deletePermission }}';
 
         $.ajax({
-            url: '{{ route("getAllRoleData") }}',
+            url: '../../database/getAllRoleData.php',
             type: 'POST',
             data: {
                 menuId: menuId
             },
+            dataType: 'json',
             success: function(response) {
                 // Check if the response has the 'data' property
                 if (response.hasOwnProperty('data')) {
@@ -367,18 +355,14 @@ include '../partials/header.php';
                             '<td>' + role.description + '</td>' +
                             '<td>';
 
-                        // Add permission icon
+
                         row += '<i class="icon-lock-open mr-2 permission-btn align-middle text-success" data-role-id="' + role.id + '"></i>';
 
-                        // Conditionally add edit icon
-                        if (editPermission === 'yes') {
-                            row += '<i class="icon-note mr-2 align-middle text-info" id="role-edit-btn" data-role-id="' + role.id + '"></i>';
-                        }
+                        row += '<i class="icon-note mr-2 align-middle text-info" id="role-edit-btn" data-role-id="' + role.id + '"></i>';
 
-                        // Conditionally add delete icon
-                        if (deletePermission === 'yes') {
-                            row += '<i class="fa fa-trash-o role-delete-btn align-middle text-danger" data-role-id="' + role.id + '"></i>';
-                        }
+
+                        row += '<i class="fa fa-trash-o role-delete-btn align-middle text-danger" data-role-id="' + role.id + '"></i>';
+
 
                         row += '</td>' +
                             '</tr>';
@@ -394,37 +378,6 @@ include '../partials/header.php';
                 console.error('Error fetching roles:', error);
             }
         });
-
-
-        // $('#roles-table').on('click', '.role-edit-btn', function() {
-        //     var roleId = $(this).data('role-id');
-        //     console.log(roleId);
-
-        //     $.ajax({
-        //         type: 'GET',
-        //         url: '{{ url("getRoleData") }}/' + roleId,
-        //         success: function(response) {
-        //             console.log(response);
-        //             if (response.hasOwnProperty('data')) {
-        //                 var role = response.data;
-        //                 $('#addRoleForm')[0].reset();
-        //                 $('#newRoleModal .text-danger').text('');
-        //                 $('#newRoleModal').modal('show');
-        //                 $('#roleId').val(role.id);
-        //                 $('#role').val(role.role);
-        //                 $('#description').val(role.description);
-        //                 $('#roleSubmit').text('Update');
-        //                 $('.modal-title').html('<strong>Edit The Role</strong>');
-        //             } else {
-        //                 console.error('Invalid response structure:', response);
-        //             }
-        //         },
-        //         error: function(error) {
-        //             console.error('Error fetching role:', error);
-        //         }
-        //     });
-        // });
-
 
         $('#roles-table').on('click', '.role-delete-btn', function() {
             var id = $(this).data('role-id');
@@ -470,14 +423,6 @@ include '../partials/header.php';
                 }
             });
         });
-    });
-
-
-    $(document).ready(function() {
-        var menuId = '{{ $menuId }}';
-        var roleId = null;
-        var editPermission = '{{ $editPermission }}';
-        var deletePermission = '{{ $deletePermission }}';
 
         $(document).on('click', '.permission-btn', function() {
             // Enable the permission button
@@ -496,11 +441,13 @@ include '../partials/header.php';
 
             // Fetch data for the permission table based on roleId using AJAX
             $.ajax({
-                url: '{{ route("getAllPermission", ["id" => ":id"]) }}'.replace(':id', roleId),
+                url: '../../database/getAllPermission.php',
                 type: 'POST',
                 data: {
-                    menuId: menuId
+                    menuId: menuId,
+                    id: roleId,
                 },
+                dataType: 'json',
                 success: function(response) {
                     // Check if the response has the 'data' property
                     if (response.hasOwnProperty('data')) {
@@ -508,24 +455,22 @@ include '../partials/header.php';
 
                         $.each(permissions, function(index, permission) {
                             var row = '<tr>' +
-                                '<td>' + permission.menu.name + '</td>' +
+                                '<td>' + permission.name + '</td>' +
                                 '<td>' + permission.read + '</td>' +
                                 '<td>' + permission.create + '</td>' +
                                 '<td>' + permission.edit + '</td>' +
                                 '<td>' + permission.delete + '</td>';
 
                             // Conditionally add edit and delete icons based on permission
-                            if (editPermission === 'yes') {
-                                row += '<td>' +
-                                    '<i class="icon-note mr-2 align-middle text-info" id="permission-edit-btn" data-permission-id="' + permission.id + '"></i>' +
-                                    '</td>';
-                            }
 
-                            if (deletePermission === 'yes') {
-                                row += '<td>' +
-                                    '<i class="fa fa-trash-o permission-delete-btn align-middle text-danger" data-permission-id="' + permission.id + '"></i>' +
-                                    '</td>';
-                            }
+                            row += '<td>' +
+                                '<i class="icon-note mr-2 align-middle text-info" id="permission-edit-btn" data-permission-id="' + permission.id + '"></i>' +
+                                '</td>';
+
+                            row += '<td>' +
+                                '<i class="fa fa-trash-o permission-delete-btn align-middle text-danger" data-permission-id="' + permission.id + '"></i>' +
+                                '</td>';
+
 
                             row += '</tr>';
 
@@ -551,96 +496,59 @@ include '../partials/header.php';
             $('#permissionModal .text-danger').text('');
         });
 
+        $('#permissionForm').submit(function(e) {
+            e.preventDefault(); // Prevent form submission
 
-        $(document).ready(function() {
-            $('#permissionForm').submit(function(e) {
-                e.preventDefault(); // Prevent form submission
+            // Check if at least one permission checkbox is checked
+            if (!$('#readCheckbox').is(':checked') &&
+                !$('#createCheckbox').is(':checked') &&
+                !$('#editCheckbox').is(':checked') &&
+                !$('#deleteCheckbox').is(':checked')) {
+                // Display error message and return
+                alertify.alert("Please select at least one permission.");
+            } else {
 
-                // Check if at least one permission checkbox is checked
-                if (!$('#readCheckbox').is(':checked') &&
-                    !$('#createCheckbox').is(':checked') &&
-                    !$('#editCheckbox').is(':checked') &&
-                    !$('#deleteCheckbox').is(':checked')) {
-                    // Display error message and return
-                    alertify.alert("Please select at least one permission.");
-                } else {
+                // Prepare form data including role_id
+                var formData = {
+                    permissionId: $('#permissionId').val(),
+                    role_id: $('#role_id').val(),
+                    menu: $('#menu').val(),
+                    read: $('#readCheckbox').is(':checked') ? 'yes' : 'no',
+                    create: $('#createCheckbox').is(':checked') ? 'yes' : 'no',
+                    edit: $('#editCheckbox').is(':checked') ? 'yes' : 'no',
+                    delete: $('#deleteCheckbox').is(':checked') ? 'yes' : 'no'
+                };
 
-                    // Prepare form data including role_id
-                    var formData = {
-                        permissionId: $('#permissionId').val(),
-                        role_id: $('#role_id').val(),
-                        menu: $('#menu').val(),
-                        read: $('#readCheckbox').is(':checked') ? 'yes' : 'no',
-                        create: $('#createCheckbox').is(':checked') ? 'yes' : 'no',
-                        edit: $('#editCheckbox').is(':checked') ? 'yes' : 'no',
-                        delete: $('#deleteCheckbox').is(':checked') ? 'yes' : 'no'
-                    };
+                console.log(formData);
 
-                    console.log(formData);
-
-                    // Send AJAX request
-                    $.ajax({
-                        type: 'POST',
-                        url: '{{ route("insertPermission") }}',
-                        data: formData,
-                        success: function(response) {
-                            if (response.success) {
-                                $('#permissionModal').modal('hide');
-                                $('#successmessage').text(response.message);
-                                $('#successmodal').modal('show');
-                                setTimeout(function() {
-                                    $('#successmodal').modal('hide');
-                                    window.location.replace('{{ route("role") }}');
-                                }, 2000);
-                            } else {
-                                $('#permissionModal').modal('hide');
-                                showErrorModal([response.errors]);
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('AJAX error:', error);
+                // Send AJAX request
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route("insertPermission") }}',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
                             $('#permissionModal').modal('hide');
-                            var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
-                            showErrorModal([errorMessage]);
+                            $('#successmessage').text(response.message);
+                            $('#successmodal').modal('show');
+                            setTimeout(function() {
+                                $('#successmodal').modal('hide');
+                                window.location.replace('{{ route("role") }}');
+                            }, 2000);
+                        } else {
+                            $('#permissionModal').modal('hide');
+                            showErrorModal([response.errors]);
                         }
-                    });
-                }
-            });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                        $('#permissionModal').modal('hide');
+                        var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+                        showErrorModal([errorMessage]);
+                    }
+                });
+            }
         });
-
-        // $('#permission-table').on('click', '.permission-edit-btn', function() {
-        //     var permissionId = $(this).data('permission-id');
-        //     console.log(permissionId);
-
-        //     $.ajax({
-        //         type: 'GET',
-        //         url: '{{ url("getPermissionData") }}/' + permissionId,
-        //         success: function(response) {
-        //             console.log(response);
-        //             if (response.hasOwnProperty('data')) {
-        //                 var permission = response.data;
-        //                 $('#permissionForm')[0].reset();
-        //                 $('#permissionModal .text-danger').text('');
-        //                 $('#permissionModal').modal('show');
-        //                 $('#permissionId').val(permission.id);
-        //                 $('#role_id').val(permission.role_id);
-        //                 $('#menu').val(permission.menu_id);
-        //                 $('#readCheckbox').prop('checked', permission.read === 'yes');
-        //                 $('#createCheckbox').prop('checked', permission.create === 'yes');
-        //                 $('#editCheckbox').prop('checked', permission.edit === 'yes');
-        //                 $('#deleteCheckbox').prop('checked', permission.delete === 'yes');
-        //                 $('#permissionSubmit').text('Update');
-        //                 $('.modal-title').html('<strong>Edit The Permission</strong>');
-        //             } else {
-        //                 console.error('Invalid response structure:', response);
-        //             }
-        //         },
-        //         error: function(error) {
-        //             console.error('Error fetching permission:', error);
-        //         }
-        //     });
-        // });
-
 
         $('#permission-table').on('click', '.permission-delete-btn', function() {
             var id = $(this).data('permission-id');
@@ -649,9 +557,6 @@ include '../partials/header.php';
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
                     $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
                         type: 'POST',
                         url: '{{ route("deletePermissionData") }}',
                         data: {
@@ -690,5 +595,5 @@ include '../partials/header.php';
 </script>
 
 <?php
-include '../partials/footer.php'; 
+include '../partials/footer.php';
 ?>

@@ -37,14 +37,6 @@ try {
     $stmt->bindParam(2, $email);
     $stmt->bindParam(3, $mobile);
     $stmt->bindParam(4, $password);
-
-    // Hash the password if provided
-    if (!empty($password)) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt->bindParam(4, $hashedPassword);
-    }
-
-    // Execute SQL statement
     $stmt->execute();
 
     $rowCount = $stmt->rowCount();

@@ -1,7 +1,7 @@
 <?php
 // Database configuration
 $dbHost = 'localhost'; // Change this to your database host
-$dbName = 'cloudone_project'; // Change this to your database name
+$dbName = 'tech_vault'; // Change this to your database name
 $dbUsername = 'root'; // Change this to your database username
 $dbPassword = ''; // Change this to your database password
 

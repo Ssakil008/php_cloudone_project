@@ -1,19 +1,14 @@
 <?php
 session_start(); // Start the session
 
-$table = 'credential_for_servers';
+$table = 'menus';
 
 $primaryKey = 'id';
 
 $columns = array(
     array('db' => 'id', 'dt' => 0),
-    array('db' => 'credential_for',  'dt' => 1),
-    array('db' => 'email',   'dt' => 2),
-    array('db' => 'mobile', 'dt' => 3,),
-    array('db' => 'url', 'dt' => 4,),
-    array('db' => 'ip_address', 'dt' => 5,),
-    array('db' => 'username', 'dt' => 6,),
-    array('db' => 'password', 'dt' => 7,),
+    array('db' => 'name',  'dt' => 1),
+    array('db' => 'link',   'dt' => 2),
 );
 
 $sql_details = array(

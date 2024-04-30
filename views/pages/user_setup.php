@@ -1,6 +1,6 @@
 <?php
 $title = 'User Setup';
-include '../partials/header.php'; 
+include '../partials/header.php';
 ?>
 
 
@@ -12,11 +12,9 @@ include '../partials/header.php';
             <div class="col-sm-9">
                 <h4 class="page-title">User Details</h4>
             </div>
-            @if ($createPermission == 'yes')
             <div class="col-lg-3 col-md-3 col-sm-3 text-right">
                 <button type="button" id="addNewBtn" class="btn btn-primary btn-sm">Add New User</button>
             </div>
-            @endif
         </div>
 
 
@@ -29,12 +27,8 @@ include '../partials/header.php';
                         <th>Email</th>
                         <th>Mobile</th>
                         <th>Role</th>
-                        @if ($editPermission == 'yes')
                         <th>Edit</th>
-                        @endif
-                        @if ($deletePermission == 'yes')
                         <th>Delete</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody>
@@ -62,7 +56,6 @@ include '../partials/header.php';
                 <!-- Your form goes here -->
 
                 <form id="userForm">
-                    @csrf
                     <input type="hidden" name="userId" id="userId">
                     <div class="form-group">
                         <label for="username">User Name</label>
@@ -146,15 +139,16 @@ include '../partials/header.php';
 
 <script>
     $(document).ready(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var menuId = urlParams.get('id');
+
         $('#addNewBtn').click(function() {
             $('#userForm')[0].reset();
             $('#userSubmit').text('Submit');
             $('.modal-title').html('<strong>Add New User</strong>');
             $('#addUserModal .text-danger').text('');
         });
-    });
 
-    $(document).ready(function() {
         $('#userSubmit').click(function(e) {
             var isValid = validateForm();
             if (isValid) {
@@ -252,7 +246,6 @@ include '../partials/header.php';
             return isValid;
         }
 
-
         $(document).on('click', '#addNewBtn, #edit-btn', function() {
             var menuId = '{{ $menuId }}'; // Replace with the actual menuId you want to check permissions for
             var userId = $(this).data('user-id');
@@ -317,48 +310,7 @@ include '../partials/header.php';
                 }
             });
         });
-    });
 
-    $(document).ready(function() {
-        // Fetch entries data from the server
-        // $.ajax({
-        //     type: 'GET',
-        //     url: '{{ route("getAllUserData") }}',
-        //     success: function(response) {
-        //         // Check if the response has the 'data' property
-        //         if (response.hasOwnProperty('data')) {
-        //             var users = response.data;
-        //             var serialNumber = 1;
-
-        //             // Iterate through entries and append rows to the table
-        //             $.each(users, function(index, user) {
-        //                 var row = '<tr>' +
-        //                     '<td>' + serialNumber + '</td>' +
-        //                     '<td>' + user.email + '</td>' +
-        //                     '<td>' + user.mobile + '</td>' +
-        //                     '<td>' + user.user_role.role.role + '</td>' +
-        //                     '<td>' +
-        //                     '<i class="icon-note mr-2 edit-btn align-middle text-info" data-user-id="' + user.id + '"></i>' +
-        //                     '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-user-id="' + user.id + '"></i>' +
-        //                     '</td>' +
-        //                     '</tr>';
-
-        //                 $('#users-table tbody').append(row);
-        //                 serialNumber++;
-        //             });
-        //         } else {
-        //             console.error('Invalid response structure:', response);
-        //         }
-        //     },
-        //     error: function(error) {
-        //         console.error('Error fetching entries:', error);
-        //     }
-        // });
-
-        var menuId = '{{ $menuId }}';
-        var editPermission = '{{ $editPermission }}';
-        var deletePermission = '{{ $deletePermission }}';
-        // Define DataTable columns dynamically based on permissions
         var columns = [{
                 "data": null,
                 "render": function(data, type, row, meta) {
@@ -366,52 +318,61 @@ include '../partials/header.php';
                 }
             },
             {
-                "data": "username"
+                "data": "1"
             },
             {
-                "data": "email"
+                "data": "2"
             },
             {
-                "data": "mobile"
+                "data": "3"
             },
             {
-                "data": "role"
-            }
+                "data": "4"
+            },
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-user-id="' + data + '"></i>';
+                }
+            },
+            {
+                "data": "0",
+                "render": function(data, type, row) {
+                    return '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-user-id="' + data + '"></i> ';
+                }
+            },
         ];
 
         // Check if user has edit permission, then add edit column
-        if (editPermission === 'yes') {
-            columns.push({
-                "data": "edit",
-                "render": function(data, type, row) {
-                    return data ? data : '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-user-id="' + row.id + '"></i>';
-                }
-            });
-        }
+        // if (editPermission === 'yes') {
+        //     columns.push({
+        //         "data": "edit",
+        //         "render": function(data, type, row) {
+        //             return data ? data : '<i class="icon-note mr-2 align-middle text-info" id="edit-btn" data-user-id="' + row.id + '"></i>';
+        //         }
+        //     });
+        // }
 
         // Check if user has delete permission, then add delete column
-        if (deletePermission === 'yes') {
-            columns.push({
-                "data": "delete",
-                "render": function(data, type, row) {
-                    return data ? data : '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-user-id="' + row.id + '"></i> ';
-                }
-            });
-        }
+        // if (deletePermission === 'yes') {
+        //     columns.push({
+        //         "data": "delete",
+        //         "render": function(data, type, row) {
+        //             return data ? data : '<i class="fa fa-trash-o delete-btn align-middle text-danger" data-user-id="' + row.id + '"></i> ';
+        //         }
+        //     });
+        // }
 
         // Initialize DataTable with the dynamic columns
         $('#users-table').DataTable({
             "processing": true,
             "serverSide": true,
             "ajax": {
-                "url": "{{ route('getAllUserData')}}",
-                "type": "POST",
-                "data": {
-                    menuId: menuId
-                }
+                "url": "../../database/getAllUserData.php",
+                "type": "GET",
             },
             "columns": columns,
-            "dom": 'Bfrtip', // Custom dom structure with buttons
+            "dom": 'Bfrtip',
             "buttons": [
                 ['pageLength'],
                 {
@@ -434,37 +395,6 @@ include '../partials/header.php';
             ]
         });
 
-        // $('#users-table').on('click', '.edit-btn', function() {
-        //     var userId = $(this).data('user-id');
-        //     console.log(userId);
-
-        //     $.ajax({
-        //         type: 'GET',
-        //         url: '{{ url("getUserData") }}/' + userId,
-        //         success: function(response) {
-        //             console.log(response);
-        //             if (response.hasOwnProperty('data')) {
-        //                 var user = response.data;
-        //                 $('#userForm')[0].reset();
-        //                 $('#addUserModal .text-danger').text('');
-        //                 $('#addUserModal').modal('show');
-        //                 $('#userId').val(user.id);
-        //                 $('#username').val(user.username);
-        //                 $('#email').val(user.email);
-        //                 $('#role').val(user.user_role.role.id);
-        //                 $('#mobile').val(user.mobile);
-        //                 $('#userSubmit').text('Update');
-        //                 $('.modal-title').html('<strong>Edit The User</strong>');
-        //             } else {
-        //                 console.error('Invalid response structure:', response);
-        //             }
-        //         },
-        //         error: function(error) {
-        //             console.error('Error fetching user:', error);
-        //         }
-        //     });
-        // });
-
         $('#users-table').on('click', '.delete-btn', function() {
             var id = $(this).data('user-id');
             var menuId = '{{ $menuId }}';
@@ -472,9 +402,6 @@ include '../partials/header.php';
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
                     $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
                         type: 'POST',
                         url: '{{ route("deleteUserData") }}',
                         data: {
@@ -484,14 +411,14 @@ include '../partials/header.php';
                         success: function(response) {
                             console.log(response);
                             if (response.success) {
-                                $('#successmessage').text(response.message); // Show success message
+                                $('#successmessage').text(response.message);
                                 $('#successmodal').modal('show');
                                 setTimeout(function() {
                                     $('#successmodal').modal('hide');
                                     window.location.href = '{{ route("user_setup") }}';
                                 }, 2000);
                             } else {
-                                $('#errormessage').text(response.message); // Show error message
+                                $('#errormessage').text(response.message);
                                 $('#errormodal').modal('show');
                                 setTimeout(function() {
                                     $('#errormodal').modal('hide');
@@ -513,5 +440,5 @@ include '../partials/header.php';
 </script>
 
 <?php
-include '../partials/footer.php'; 
+include '../partials/footer.php';
 ?>
