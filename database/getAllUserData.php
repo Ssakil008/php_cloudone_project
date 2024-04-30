@@ -22,7 +22,11 @@ $columns = array(
 $sql_details = array(
     'user' => 'root',
     'pass' => '',
+<<<<<<< HEAD
     'db'   => 'tech_vault',
+=======
+    'db'   => 'cloudone_project',
+>>>>>>> origin/main
     'host' => 'localhost'
 );
 
