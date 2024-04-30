@@ -16,11 +16,9 @@ try {
     // Check permissions
     if (checkPermissions($menuId)) {
         // Prepare and execute SQL query to fetch permissions associated with the given role ID
-<<<<<<< HEAD
+        
         $stmt = $pdo->prepare("SELECT permissions.*, menus.name FROM permissions JOIN menus ON permissions.menu_id = menus.id WHERE permissions.role_id = ?");
-=======
-        $stmt = $pdo->prepare("SELECT permissions.*, menus.* FROM permissions JOIN menus ON permissions.menu_id = menus.id WHERE permissions.role_id = ?");
->>>>>>> origin/main
+
         $stmt->execute([$roleId]);
         $permissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
