@@ -124,15 +124,21 @@ include '../partials/header.php';
             </div>
             <div class="modal-body">
                 <form id="permissionForm">
+                    <?php
+                    include '../../database/database.php';
+                    $query = "SELECT * FROM menus";
+                    $stmt = $pdo->query($query);
+                    $menus = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
                     <div class="form-group">
                         <input type="hidden" name="permissionId" id="permissionId">
                         <input type="hidden" name="role_id" id="role_id">
                         <label for="menu">Menu</label>
                         <select class="form-control input-shadow" name="menu" id="menu">
                             <option value="" disabled selected>Select Menu</option>
-                            @foreach (\App\Models\Menu::all() as $menu)
-                            <option value="{{ $menu->id }}">{{ $menu->name }}</option>
-                            @endforeach
+                            <?php foreach ($menus as $menu) : ?>
+                                <option value="<?= $menu['id'] ?>"><?= $menu['name'] ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     <div class="d-flex justify-content-start align-items-center">
@@ -189,25 +195,26 @@ include '../partials/header.php';
         });
 
         $(document).on('click', '#addNewBtn, #addNewPermission, #permission-edit-btn, #role-edit-btn', function() {
-            var menuId = '{{ $menuId }}'; // Replace with the actual menuId you want to check permissions for
             var buttonClicked = $(this).attr('id');
             var roleId = $(this).data('role-id');
-            console.log(roleId, buttonClicked);
             var permissionId = $(this).data('permission-id');
-            console.log(permissionId);
             if (buttonClicked === 'addNewBtn' || buttonClicked === 'addNewPermission') {
                 var action = 'create';
             } else {
                 var action = 'edit';
             }
+
+            console.log(menuId, buttonClicked, roleId, permissionId, action);
+
             // Make an AJAX call to check permissions
             $.ajax({
-                url: '{{ route("checkPermission") }}',
+                url: '../../database/checkPermission.php',
                 type: 'POST',
                 data: {
                     menuId: menuId,
                     action: action
                 },
+                dataType: 'json',
                 success: function(response) {
                     console.log(roleId, buttonClicked);
                     if (response.success) {
@@ -218,8 +225,12 @@ include '../partials/header.php';
                             $('#permissionModal').modal('show');
                         } else if (buttonClicked === 'role-edit-btn') {
                             $.ajax({
-                                type: 'GET',
-                                url: '{{ url("getRoleData") }}/' + roleId,
+                                type: 'POST',
+                                url: '../../database/getRoleData.php',
+                                data: {
+                                    roleId: roleId
+                                },
+                                dataType: 'json',
                                 success: function(response) {
                                     console.log(response);
                                     if (response.hasOwnProperty('data')) {
@@ -242,8 +253,12 @@ include '../partials/header.php';
                             });
                         } else if (buttonClicked === 'permission-edit-btn') {
                             $.ajax({
-                                type: 'GET',
-                                url: '{{ url("getPermissionData") }}/' + permissionId,
+                                type: 'POST',
+                                url: '../../database/getPermissionData.php',
+                                data: {
+                                    permissionId: permissionId
+                                },
+                                dataType: 'json',
                                 success: function(response) {
                                     console.log(response);
                                     if (response.hasOwnProperty('data')) {
@@ -281,7 +296,6 @@ include '../partials/header.php';
             });
         });
 
-
         $('#roleSubmit').click(function() {
             var isValid = validateForm();
             if (isValid) {
@@ -301,7 +315,7 @@ include '../partials/header.php';
                                     $('#successmodal').modal('show');
                                     setTimeout(function() {
                                         $('#successmodal').modal('hide');
-                                        window.location.href = '{{ route("role") }}';
+                                        window.location.reload();
                                     }, 2000);
                                 } else {
                                     $('#newRoleModal').modal('hide');
@@ -524,8 +538,9 @@ include '../partials/header.php';
                 // Send AJAX request
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route("insertPermission") }}',
+                    url: '../../database/insertPermission.php',
                     data: formData,
+                    dataType: 'json',
                     success: function(response) {
                         if (response.success) {
                             $('#permissionModal').modal('hide');
@@ -533,17 +548,30 @@ include '../partials/header.php';
                             $('#successmodal').modal('show');
                             setTimeout(function() {
                                 $('#successmodal').modal('hide');
-                                window.location.replace('{{ route("role") }}');
+                                window.location.reload();
                             }, 2000);
                         } else {
+                            // Handle server-side errors
                             $('#permissionModal').modal('hide');
-                            showErrorModal([response.errors]);
+
+                            // Check if there's a message field in the response JSON
+                            var errorMessage = response.message || 'An unknown error occurred.';
+
+                            // Show error modal with the error message
+                            showErrorModal([errorMessage]);
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('AJAX error:', error);
                         $('#permissionModal').modal('hide');
                         var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                        // Extract the error message from the response JSON if available
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
+                        }
+
+                        // Show error modal with the error message
                         showErrorModal([errorMessage]);
                     }
                 });
@@ -552,17 +580,17 @@ include '../partials/header.php';
 
         $('#permission-table').on('click', '.permission-delete-btn', function() {
             var id = $(this).data('permission-id');
-            var menuId = '{{ $menuId }}';
             console.log(id, menuId);
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
                     $.ajax({
                         type: 'POST',
-                        url: '{{ route("deletePermissionData") }}',
+                    url: '../../database/deletePermissionData.php',
                         data: {
                             id: id,
                             menuId: menuId,
                         },
+                        dataType: 'json',
                         success: function(response) {
                             console.log(response);
                             if (response.success) {
@@ -570,23 +598,21 @@ include '../partials/header.php';
                                 $('#successmodal').modal('show');
                                 setTimeout(function() {
                                     $('#successmodal').modal('hide');
-                                    window.location.href = '{{ route("role") }}';
+                                    window.location.reload();
                                 }, 2000);
                             } else {
-                                $('#errormessage').text(response.message); // Show error message
-                                $('#errormodal').modal('show');
-                                setTimeout(function() {
-                                    $('#errormodal').modal('hide');
-                                }, 2000);
+                            var errorMessage = response.message || 'An unknown error occurred.';
+                            showErrorModal([errorMessage]);
                             }
                         },
-                        error: function(error) {
-                            $('#errormessage').text(response.message); // Show error message
-                            $('#errormodal').modal('show');
-                            setTimeout(function() {
-                                $('#errormodal').modal('hide');
-                            }, 2000);
+                        error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                        var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMessage = xhr.responseJSON.message;
                         }
+                        showErrorModal([errorMessage]);
+                    }
                     });
                 }
             });
