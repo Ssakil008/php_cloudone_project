@@ -12,6 +12,7 @@ try {
     // Validate input
     if (empty($role) || empty($description)) {
         echo json_encode(['success' => false, 'message' => 'Role and description are required.']);
+        exit;    
     }
 
     if (empty($id)) {
@@ -42,5 +43,8 @@ try {
     }
 } catch (PDOException $e) {
     // Handle the exception
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+} catch (Exception $e) {
+    // Handle other exceptions
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }

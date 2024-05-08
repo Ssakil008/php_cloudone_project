@@ -19,8 +19,11 @@ try {
     $username = $_POST['username'];
     $email = $_POST['email'];
     $mobile = $_POST['mobile'];
-    $password = $_POST['password'];
-    $roleId = $_POST['roleId'];
+    $password = isset($_POST['password']) ? $_POST['password'] : null; // Check if 'password' exists in $_POST
+    $roleId = $_POST['role'];
+
+    // Hash the password if it is not null
+    $hashedPassword = $password ? password_hash($password, PASSWORD_DEFAULT) : null;
 
     // Prepare SQL statement
     if (empty($userId)) {
@@ -28,7 +31,13 @@ try {
         $stmt = $pdo->prepare("INSERT INTO users (username, email, mobile, password) VALUES (?, ?, ?, ?)");
     } else {
         // Update
-        $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, mobile = ?, password = ? WHERE id = ?");
+        if ($password) {
+            // Update password only if it is not null
+            $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, mobile = ?, password = ? WHERE id = ?");
+        } else {
+            // Exclude password from the update statement
+            $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, mobile = ? WHERE id = ?");
+        }
         $stmt->bindParam(':userId', $userId);
     }
 
@@ -36,8 +45,16 @@ try {
     $stmt->bindParam(1, $username);
     $stmt->bindParam(2, $email);
     $stmt->bindParam(3, $mobile);
-    $stmt->bindParam(4, $password);
+    if ($password) {
+        $stmt->bindParam(4, $hashedPassword);
+        $stmt->bindParam(5, $userId);
+    } else {
+        // If password is null, adjust the binding index accordingly
+        $stmt->bindParam(4, $userId);
+    }
     $stmt->execute();
+
+    $lastInsertId = $pdo->lastInsertId();
 
     $rowCount = $stmt->rowCount();
 
@@ -48,9 +65,14 @@ try {
 
     // If userId exists, update the user_role record
     if (!empty($userId)) {
-        $stmt = $pdo->prepare("UPDATE user_roles SET role_id = ? WHERE user_id = ?");
+        $stmt = $pdo->prepare("UPDATE user_role SET role_id = ? WHERE user_id = ?");
         $stmt->bindParam(1, $roleId);
         $stmt->bindParam(2, $userId);
+        $stmt->execute();
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO user_role (user_id, role_id) VALUES (?, ?)");
+        $stmt->bindParam(1, $lastInsertId);
+        $stmt->bindParam(2, $roleId);
         $stmt->execute();
     }
 
@@ -89,7 +111,7 @@ function validateRequest($postData)
         $errors[] = 'Password must be at least 8 characters long';
     }
 
-    if (empty($postData['roleId'])) {
+    if (empty($postData['role'])) {
         $errors[] = 'Role ID is required';
     }
 

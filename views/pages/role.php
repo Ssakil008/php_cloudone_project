@@ -319,13 +319,24 @@ include '../partials/header.php';
                                     }, 2000);
                                 } else {
                                     $('#newRoleModal').modal('hide');
-                                    showErrorModal([response.errors]);
+                                    // Check if there's a message field in the response JSON
+                                    var errorMessage = response.message || 'An unknown error occurred.';
+
+                                    // Show error modal with the error message
+                                    showErrorModal([errorMessage]);
                                 }
                             },
                             error: function(xhr, status, error) {
                                 console.error('AJAX error:', error);
                                 $('#newRoleModal').modal('hide');
                                 var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                                // Extract the error message from the response JSON if available
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMessage = xhr.responseJSON.message;
+                                }
+
+                                // Show error modal with the error message
                                 showErrorModal([errorMessage]);
                             }
                         });
@@ -395,20 +406,17 @@ include '../partials/header.php';
 
         $('#roles-table').on('click', '.role-delete-btn', function() {
             var id = $(this).data('role-id');
-            var menuId = '{{ $menuId }}';
             console.log(id, menuId);
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
                     $.ajax({
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
                         type: 'POST',
-                        url: '{{ route("deleteRoleData") }}',
+                        url: '../../database/deleteRoleData.php',
                         data: {
                             id: id,
                             menuId: menuId,
                         },
+                        dataType: 'json',
                         success: function(response) {
                             console.log(response);
                             if (response.success) {
@@ -416,22 +424,20 @@ include '../partials/header.php';
                                 $('#successmodal').modal('show');
                                 setTimeout(function() {
                                     $('#successmodal').modal('hide');
-                                    window.location.href = '{{ route("role") }}';
+                                    window.location.reload();
                                 }, 2000);
                             } else {
-                                $('#errormessage').text(response.message); // Show error message
-                                $('#errormodal').modal('show');
-                                setTimeout(function() {
-                                    $('#errormodal').modal('hide');
-                                }, 2000);
+                                var errorMessage = response.message || 'An unknown error occurred.';
+                                showErrorModal([errorMessage]);
                             }
                         },
-                        error: function(error) {
-                            $('#errormessage').text(response.message); // Show error message
-                            $('#errormodal').modal('show');
-                            setTimeout(function() {
-                                $('#errormodal').modal('hide');
-                            }, 2000);
+                        error: function(xhr, status, error) {
+                            console.error('AJAX error:', error);
+                            var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            showErrorModal([errorMessage]);
                         }
                     });
                 }
@@ -585,7 +591,7 @@ include '../partials/header.php';
                 if (e) {
                     $.ajax({
                         type: 'POST',
-                    url: '../../database/deletePermissionData.php',
+                        url: '../../database/deletePermissionData.php',
                         data: {
                             id: id,
                             menuId: menuId,
@@ -601,18 +607,18 @@ include '../partials/header.php';
                                     window.location.reload();
                                 }, 2000);
                             } else {
-                            var errorMessage = response.message || 'An unknown error occurred.';
-                            showErrorModal([errorMessage]);
+                                var errorMessage = response.message || 'An unknown error occurred.';
+                                showErrorModal([errorMessage]);
                             }
                         },
                         error: function(xhr, status, error) {
-                        console.error('AJAX error:', error);
-                        var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMessage = xhr.responseJSON.message;
+                            console.error('AJAX error:', error);
+                            var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            showErrorModal([errorMessage]);
                         }
-                        showErrorModal([errorMessage]);
-                    }
                     });
                 }
             });

@@ -56,7 +56,7 @@
                         <input type="text" name="username" id="username" required placeholder="User Name" class="form-control input-shadow">
                         <span class="text-danger" id="username_error"></span>
                         <div class="form-control-position">
-                           <i class="zmdi zmdi-email"></i>
+                           <i class="zmdi zmdi-account"></i>
                         </div>
                      </div>
                   </div>
@@ -78,7 +78,7 @@
                         <input type="number" name="mobile" required id="mobile" placeholder="Mobile Number" class="form-control input-shadow">
                         <span class="text-danger" id="mobile_error"></span>
                         <div class="form-control-position">
-                           <i class="zmdi zmdi-account material-icons-name"></i>
+                           <i class="zmdi zmdi-phone"></i>
                         </div>
                      </div>
                   </div>
@@ -224,7 +224,7 @@
                   if (roleIdResponse.success) {
                      var roleId = roleIdResponse.roleId;
                      var formData = $('#register_form').serialize();
-                     formData += '&roleId=' + roleId; // Append fetched roleId to the form data
+                     formData += '&role=' + roleId; // Append fetched roleId to the form data
                      console.log(formData);
 
                      $.ajax({
@@ -299,8 +299,9 @@
             type: 'POST',
             url: '../../database/login_user.php',
             data: loginData,
+            dataType: 'json',
             success: function(response) {
-               var response = JSON.parse(response); // Parse the JSON response
+               console.log(response);
                if (response.success) {
                   window.location.href = '../pages/dashboard.php';
                } else {

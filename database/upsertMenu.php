@@ -39,8 +39,10 @@ try {
 } catch (PDOException $e) {
     // Handle database connection errors or query errors
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+} catch (PDOException $e) {
+    // Handle the exception
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 } catch (Exception $e) {
     // Handle other exceptions
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
 }
-

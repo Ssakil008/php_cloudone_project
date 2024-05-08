@@ -17,16 +17,16 @@ try {
 
     // Verify user's password
     if ($user && password_verify($password, $user['password'])) {
-    $stmt = $pdo->prepare("SELECT * FROM user_role WHERE user_id = ?");
-    $stmt->execute([$user['id']]);
-    $role = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT * FROM user_role WHERE user_id = ?");
+        $stmt->execute([$user['id']]);
+        $role = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $stmt = $pdo->prepare("SELECT * FROM permissions WHERE role_id = ?");
-    $stmt->execute([$role['role_id']]);
-    $permissions = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt = $pdo->prepare("SELECT * FROM permissions WHERE role_id = ?");
+        $stmt->execute([$role['role_id']]);
+        $permissions = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // User authenticated successfully
-        
+
         // Store user data in session
         $_SESSION['id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
@@ -44,5 +44,3 @@ try {
     // Handle database connection errors or query errors
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
-?>
-

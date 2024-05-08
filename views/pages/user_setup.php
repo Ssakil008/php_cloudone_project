@@ -56,6 +56,13 @@ include '../partials/header.php';
                 <!-- Your form goes here -->
 
                 <form id="userForm">
+                    <?php
+                    include '../../database/database.php';
+                    $query = "SELECT * FROM roles";
+                    $stmt = $pdo->query($query);
+                    $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    ?>
+
                     <input type="hidden" name="userId" id="userId">
                     <div class="form-group">
                         <label for="username">User Name</label>
@@ -67,7 +74,7 @@ include '../partials/header.php';
 
                     <div class="form-group">
                         <label for="email">Email ID</label>
-                        <input type="email" id="email" name="email" name="email" required placeholder="E-mail" value="{{old('email')}}" class="form-control input-shadow">
+                        <input type="email" id="email" name="email" name="email" required placeholder="E-mail" class="form-control input-shadow">
                         <span class="text-danger" id="email_error"></span>
                     </div>
 
@@ -81,9 +88,9 @@ include '../partials/header.php';
                         <label for="role">Role</label>
                         <select class="form-control input-shadow" name="role" required id="role">
                             <option value="" disabled selected>Select Role</option>
-                            @foreach (\App\Models\Role::all() as $role)
-                            <option value="{{ $role->id }}">{{ $role->role }}</option>
-                            @endforeach
+                            <?php foreach ($roles as $role) : ?>
+                                <option value="<?= $role['id'] ?>"><?= $role['role'] ?></option>
+                            <?php endforeach; ?>
                         </select>
                         <span class="text-danger" id="role_error"></span>
 
@@ -153,8 +160,6 @@ include '../partials/header.php';
             var isValid = validateForm();
             if (isValid) {
                 var formData = $('#userForm').serialize();
-                var roleId = $('#role').val(); // Get the selected role ID
-                formData += '&roleId=' + roleId; // Append role ID to the form data
                 console.log(formData);
 
                 // Get the email from the form
@@ -193,21 +198,27 @@ include '../partials/header.php';
         function submitFormData(formData) {
             $.ajax({
                 type: 'POST',
-                url: '{{ route("upsertUser") }}',
+                url: '../../database/upsertUser.php',
                 data: formData,
+                dataType: 'json',
                 success: function(response) {
+                    console.log(response);
                     if (response.success) {
                         $('#addUserModal').modal('hide');
                         $('#successmessage').text(response.message);
                         $('#successmodal').modal('show');
                         setTimeout(function() {
                             $('#successmodal').modal('hide');
-                            window.location.href = '{{ route("user_setup") }}';
+                            window.location.reload();
                         }, 2000);
                     } else {
                         // Handle server-side errors
                         $('#addUserModal').modal('hide');
-                        showErrorModal([response.errors]);
+                        // Check if there's a message field in the response JSON
+                        var errorMessage = response.message || 'An unknown error occurred.';
+
+                        // Show error modal with the error message
+                        showErrorModal([errorMessage]);
 
                     }
                 },
@@ -215,6 +226,13 @@ include '../partials/header.php';
                     console.error('AJAX error:', error);
                     $('#addUserModal').modal('hide');
                     var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                    // Extract the error message from the response JSON if available
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+
+                    // Show error modal with the error message
                     showErrorModal([errorMessage]);
                 }
             });
@@ -247,23 +265,24 @@ include '../partials/header.php';
         }
 
         $(document).on('click', '#addNewBtn, #edit-btn', function() {
-            var menuId = '{{ $menuId }}'; // Replace with the actual menuId you want to check permissions for
             var userId = $(this).data('user-id');
             var buttonClicked = $(this).attr('id');
-            console.log(userId, buttonClicked);
             if (buttonClicked === 'addNewBtn') {
                 var action = 'create';
             } else {
                 var action = 'edit';
             }
+
+            console.log(menuId, buttonClicked, action, userId);
             // Make an AJAX call to check permissions
             $.ajax({
-                url: '{{ route("checkPermission") }}',
+                url: '../../database/checkPermission.php',
                 type: 'POST',
                 data: {
                     menuId: menuId,
                     action: action
                 },
+                dataType: 'json',
                 success: function(response) {
                     console.log(response);
                     if (response.success) {
@@ -271,8 +290,12 @@ include '../partials/header.php';
                             $('#addUserModal').modal('show');
                         } else if (buttonClicked === 'edit-btn') {
                             $.ajax({
-                                type: 'GET',
-                                url: '{{ url("getUserData") }}/' + userId,
+                                type: 'POST',
+                                url: '../../database/getUserData.php',
+                                data: {
+                                    userId: userId
+                                },
+                                dataType: 'json',
                                 success: function(response) {
                                     console.log(response);
                                     if (response.hasOwnProperty('data')) {
@@ -283,7 +306,7 @@ include '../partials/header.php';
                                         $('#userId').val(user.id);
                                         $('#username').val(user.username);
                                         $('#email').val(user.email);
-                                        $('#role').val(user.user_role.role.id);
+                                        $('#role').val(user.role_id);
                                         $('#mobile').val(user.mobile);
                                         $('#userSubmit').text('Update');
                                         $('.modal-title').html('<strong>Edit The User</strong>');

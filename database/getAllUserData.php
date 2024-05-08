@@ -4,10 +4,8 @@ session_start(); // Start the session
 
 require_once 'database.php';
 
-// Define the SQL query using heredoc syntax
-$table = <<<EOT
-(SELECT users.*, roles.role FROM users JOIN user_role ON users.id = user_role.user_id JOIN roles ON user_role.role_id = roles.id) AS table1
-EOT;
+// Define the SQL query to select from the view
+$table = 'user_role_view';
 
 $primaryKey = 'id';
 
