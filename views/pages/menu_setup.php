@@ -363,19 +363,19 @@ include '../partials/header.php';
                                     window.location.reload();
                                 }, 2000);
                             } else {
-                                $('#errormessage').text(response.message); // Show error message
-                                $('#errormodal').modal('show');
-                                setTimeout(function() {
-                                    $('#errormodal').modal('hide');
-                                }, 2000);
+                                var errorMessage = response.message || 'An unknown error occurred.';
+                                showErrorModal([errorMessage]);
                             }
                         },
-                        error: function(error) {
-                            $('#errormessage').text(response.message); // Show error message
-                            $('#errormodal').modal('show');
-                            setTimeout(function() {
-                                $('#errormodal').modal('hide');
-                            }, 2000);
+                        error: function(xhr, status, error) {
+                            console.error('AJAX error:', error);
+                            $('#addMenuModal').modal('hide');
+                            var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            showErrorModal([errorMessage]);
                         }
                     });
                 }

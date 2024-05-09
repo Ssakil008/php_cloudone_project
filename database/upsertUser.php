@@ -5,6 +5,7 @@ require_once 'database.php';
 try {
     // Access the PDO object from database.php
     global $pdo;
+    $pdo->beginTransaction();
 
     // Validate request data
     $errors = validateRequest($_POST);
@@ -34,11 +35,12 @@ try {
         if ($password) {
             // Update password only if it is not null
             $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, mobile = ?, password = ? WHERE id = ?");
+            $stmt->bindParam(5, $userId);
         } else {
             // Exclude password from the update statement
             $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ?, mobile = ? WHERE id = ?");
+            $stmt->bindParam(4, $userId);
         }
-        $stmt->bindParam(':userId', $userId);
     }
 
     // Bind parameters
@@ -47,21 +49,9 @@ try {
     $stmt->bindParam(3, $mobile);
     if ($password) {
         $stmt->bindParam(4, $hashedPassword);
-        $stmt->bindParam(5, $userId);
-    } else {
-        // If password is null, adjust the binding index accordingly
-        $stmt->bindParam(4, $userId);
     }
     $stmt->execute();
 
-    $lastInsertId = $pdo->lastInsertId();
-
-    $rowCount = $stmt->rowCount();
-
-    if ($rowCount === 0) {
-        echo json_encode(['success' => false, 'message' => 'User Id not found']);
-        exit; // Terminate script execution
-    }
 
     // If userId exists, update the user_role record
     if (!empty($userId)) {
@@ -76,15 +66,22 @@ try {
         $stmt->execute();
     }
 
+    $pdo->commit();
     // echo success response
     echo json_encode(['success' => true, 'message' => 'User ' . ($userId ? 'updated' : 'added') . ' successfully']);
 } catch (PDOException $e) {
+    // Rollback the transaction on any exception
+    $pdo->rollBack();
+  
     // Handle database connection errors or query errors
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
-} catch (Exception $e) {
+  } catch (Exception $e) {
+    // Rollback the transaction on any exception
+    $pdo->rollBack();
+  
     // Handle other exceptions
     echo json_encode(['success' => false, 'message' => $e->getMessage()]);
-}
+  }
 
 function validateRequest($postData)
 {

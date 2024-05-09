@@ -243,13 +243,18 @@
                               }, 3000);
                               autoLoginAndRedirect($('#email').val(), $('#password').val());
                            } else {
-                              // Handle server-side errors
-                              showErrorModal([response.errors]);
+                              var errorMessage = response.message || 'An unknown error occurred.';
+                              showErrorModal([errorMessage]);
                            }
                         },
                         error: function(xhr, status, error) {
                            console.error('AJAX error:', error);
+                           $('#addMenuModal').modal('hide');
                            var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                           if (xhr.responseJSON && xhr.responseJSON.message) {
+                              errorMessage = xhr.responseJSON.message;
+                           }
                            showErrorModal([errorMessage]);
                         }
                      });
@@ -263,8 +268,13 @@
                   }
                },
                error: function(xhr, status, error) {
-                  console.error('Error fetching roleId:', error);
-                  var errorMessage = (response && response.message) ? response.message : "An error occurred while fetching the role ID";
+                  console.error('AJAX error:', error);
+                  $('#addMenuModal').modal('hide');
+                  var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                  if (xhr.responseJSON && xhr.responseJSON.message) {
+                     errorMessage = xhr.responseJSON.message;
+                  }
                   showErrorModal([errorMessage]);
                }
             });
@@ -303,22 +313,21 @@
             success: function(response) {
                console.log(response);
                if (response.success) {
-                  window.location.href = '../pages/dashboard.php';
+                  window.location.href = '../pages/user_setup.php';
                } else {
-                  $('#errormessage').text('Auto login failed');
-                  $('#errormodal').modal('show');
-                  setTimeout(function() {
-                     $('#errormodal').modal('hide');
-                  }, 2000);
+                  var errorMessage = response.message || 'An unknown error occurred.';
+                  showErrorModal([errorMessage]);
                }
             },
-            error: function(error) {
-               console.log('Error:', error);
-               $('#errormessage').text('Auto login failed');
-               $('#errormodal').modal('show');
-               setTimeout(function() {
-                  $('#errormodal').modal('hide');
-               }, 2000);
+            error: function(xhr, status, error) {
+               console.error('AJAX error:', error);
+               $('#addMenuModal').modal('hide');
+               var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+               if (xhr.responseJSON && xhr.responseJSON.message) {
+                  errorMessage = xhr.responseJSON.message;
+               }
+               showErrorModal([errorMessage]);
             }
          });
       }

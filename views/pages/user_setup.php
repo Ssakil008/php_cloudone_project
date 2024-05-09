@@ -420,17 +420,17 @@ include '../partials/header.php';
 
         $('#users-table').on('click', '.delete-btn', function() {
             var id = $(this).data('user-id');
-            var menuId = '{{ $menuId }}';
             console.log(id, menuId);
             alertify.confirm('Are you sure?', function(e) {
                 if (e) {
                     $.ajax({
                         type: 'POST',
-                        url: '{{ route("deleteUserData") }}',
+                        url: '../../database/deleteUserData.php',
                         data: {
                             id: id,
                             menuId: menuId,
                         },
+                        dataType: 'json',
                         success: function(response) {
                             console.log(response);
                             if (response.success) {
@@ -438,22 +438,22 @@ include '../partials/header.php';
                                 $('#successmodal').modal('show');
                                 setTimeout(function() {
                                     $('#successmodal').modal('hide');
-                                    window.location.href = '{{ route("user_setup") }}';
+                                    window.location.reload();
                                 }, 2000);
                             } else {
-                                $('#errormessage').text(response.message);
-                                $('#errormodal').modal('show');
-                                setTimeout(function() {
-                                    $('#errormodal').modal('hide');
-                                }, 2000);
+                                var errorMessage = response.message || 'An unknown error occurred.';
+                                showErrorModal([errorMessage]);
                             }
                         },
-                        error: function(error) {
-                            $('#errormessage').text(response.message); // Show error message
-                            $('#errormodal').modal('show');
-                            setTimeout(function() {
-                                $('#errormodal').modal('hide');
-                            }, 2000);
+                        error: function(xhr, status, error) {
+                            console.error('AJAX error:', error);
+                            $('#addMenuModal').modal('hide');
+                            var errorMessage = "An error occurred: " + xhr.status + " " + xhr.statusText;
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                            showErrorModal([errorMessage]);
                         }
                     });
                 }
