@@ -280,7 +280,7 @@ include '../partials/header.php';
             var isValid = validateForm();
             if (isValid) {
                 // Create a new FormData object
-                var formData = new FormData($('#dynamicForm'));
+                var formData = $("#dynamicForm").serialize();
 
                 // Get the email from the form
                 var email = document.getElementById('email').value;
@@ -312,8 +312,6 @@ include '../partials/header.php';
                             url: "../../database/storeDynamicData.php",
                             type: "POST",
                             data: formData,
-                            contentType: false,
-                            processData: false,
                             dataType: 'json',
                             success: function(response) {
                                 console.log(response);

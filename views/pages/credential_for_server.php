@@ -340,16 +340,16 @@ include '../partials/header.php';
             //     "data": "4"
             // },
             {
-                'targets': 4, // Targeting column 4
+                'data': "4",
                 'render': function(data, type, row) {
                     var description = data;
                     var truncatedDescription = description.substring(0, 10);
-                    var seeMoreLink = (description.length > 10) ? '<a href="#" class="see-more" data-toggle="modal" data-target="#descriptionModal' + row.id_pk + '">See More</a>' : '';
+                    var seeMoreLink = (description.length > 10) ? '<a href="#" class="see-more" data-toggle="modal" data-target="#descriptionModal' + row[0] + '">See More</a>' : '';
                     return '<div class="description">' +
-                        '<span class="description-popover" data-toggle="popover" title="Full Description" data-content="' + description + '" data-trigger="hover" class="truncated-description">' + truncatedDescription + '</span>' +
+                        '<span class="description-popover" style="cursor: grab;" data-toggle="popover" title="Full Description" data-content="' + description + '" data-trigger="hover" class="truncated-description">' + truncatedDescription + '</span>' +
                         seeMoreLink +
                         '</div>' +
-                        '<div class="modal fade" id="descriptionModal' + row.id_pk + '" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">' +
+                        '<div class="modal fade" id="descriptionModal' + row[0] + '" tabindex="-1" role="dialog" aria-labelledby="descriptionModalLabel" aria-hidden="true">' +
                         '<div class="modal-dialog" role="document">' +
                         '<div class="modal-content">' +
                         '<div class="modal-header">' +
@@ -358,7 +358,7 @@ include '../partials/header.php';
                         '<span aria-hidden="true">&times;</span>' +
                         '</button>' +
                         '</div>' +
-                        '<div class="modal-body">' +
+                        '<div class="modal-body" style="white-space: normal;">' +
                         description +
                         '</div>' +
                         '<div class="modal-footer">' +
@@ -397,6 +397,17 @@ include '../partials/header.php';
             "pagingType": "numbers",
             "processing": true,
             "serverSide": true,
+            "drawCallback": function(settings) {
+                $('[data-toggle="popover"]').each(function() {
+                    $(this).popover({
+                        trigger: 'hover',
+                        placement: 'auto',
+                        html: true,
+                        title: $(this).attr('title'),
+                        content: $(this).attr('data-content')
+                    });
+                });
+            },
             "ajax": {
                 "url": "../../database/get_entries.php",
                 "type": "GET",

@@ -7,6 +7,65 @@ try {
     // Start transaction
     $pdo->beginTransaction();
 
+    // Retrieve both static and dynamic fields from the POST data
+    $userId = $_POST['userId'];
+    $name = $_POST['name'];
+    $email = $_POST['email'];
+    $mobile = $_POST['mobile'];
+    $password = $_POST['password'];
+    $fields = $_POST['fields']; // Array of dynamic fields
+
+    // Process static fields
+    // (Your code to process static fields goes here)
+
+    // Process dynamic fields
+    foreach ($fields as $field) {
+        $fieldName = $field['fieldName'];
+        $fieldValue = $field['fieldValue'];
+
+        // Process dynamic fields or store them in the database
+        // (Your code to process dynamic fields goes here)
+    }
+
+    // Commit transaction
+    $pdo->commit();
+
+    echo json_encode(['success' => true, 'message' => 'Data stored successfully.']);
+} catch (PDOException $e) {
+    // Rollback transaction on exception
+    $pdo->rollBack();
+
+    // Check if the exception is due to unique constraint violation
+    if (strpos($e->getMessage(), 'Integrity constraint violation') !== false) {
+        // Extract the duplicate entry value from the error message
+        preg_match("/Duplicate entry '(.+)' for key/", $e->getMessage(), $matches);
+        $errorMessage = "Duplicate entry '{$matches[1]}'";
+    } else {
+        // For other types of exceptions, use the default error message
+        $errorMessage = $e->getMessage();
+    }
+
+    echo json_encode(['success' => false, 'error' => $errorMessage]);
+}
+
+
+
+
+
+
+
+
+
+
+<?php
+session_start();
+
+require_once 'database.php';
+
+try {
+    // Start transaction
+    $pdo->beginTransaction();
+
     // Separate predefined fields and dynamic fields
     $predefinedFields = $_POST['predefinedFields'];
     $dynamicFields = $_POST['fields'];
